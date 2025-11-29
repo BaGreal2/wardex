@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16
+    container_name: wardex-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wardex
+      POSTGRES_PASSWORD: wardexpass
+      POSTGRES_DB: wardexdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  pgdata:
