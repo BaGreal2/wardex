@@ -1,27 +1,21 @@
+// src/server.ts
 import "dotenv/config";
 
 import fs from "node:fs";
-
-import type { FastifyServerOptions } from "fastify";
+import https from "node:https";
 
 import { buildApp } from "./app";
 
-const port = Number(process.env.PORT ?? 3000);
-const useHttps = process.env.ENABLE_HTTPS === "1";
+const app = buildApp();
+const port = Number(process.env.PORT ?? 3443);
 
-const httpsOpts = useHttps
-  ? {
-    https: {
-      key: fs.readFileSync(process.env.TLS_KEY_PATH ?? "/etc/wardex/tls/key.pem", "utf8"),
-      cert: fs.readFileSync(process.env.TLS_CERT_PATH ?? "/etc/wardex/tls/cert.pem", "utf8"),
-    },
-  }
-  : {};
+const DOMAIN = "wardex-vm.switzerlandnorth.cloudapp.azure.com";
 
-const app = buildApp(httpsOpts as FastifyServerOptions);
+const key = fs.readFileSync(`/etc/letsencrypt/live/${DOMAIN}/privkey.pem`);
+const cert = fs.readFileSync(`/etc/letsencrypt/live/${DOMAIN}/fullchain.pem`);
 
-app.listen({ port, host: "0.0.0.0" }).catch((err) => {
-  app.log.error(err);
-  process.exit(1);
+const server = https.createServer({ key, cert }, app.server as any);
+
+server.listen(port, "0.0.0.0", () => {
+  app.log.info(`Server listening at https://0.0.0.0:${port}`);
 });
-
