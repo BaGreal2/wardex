@@ -5,6 +5,8 @@ import { desc, eq } from "drizzle-orm";
 import { alarmEvents } from "@/db/schema";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
+  fastify.addHook("onRequest", fastify.authenticate);
+
   const Params = Type.Object({
     deviceId: Type.String(),
   });
@@ -31,6 +33,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     async (request, reply) => {
       const { deviceId } = request.params;
+      const user = request.user;
+
+      await fastify.authorizeDeviceAccess(deviceId, user.userId);
 
       const rows = await fastify.db
         .select({

@@ -1,11 +1,13 @@
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { Type, type Static } from "@sinclair/typebox";
+import { eq, or } from "drizzle-orm";
 
-import { devices } from "@/db/schema";
-
-const DEMO_OWNER_ID = "275eab68-f109-4bb7-ba30-446c620fc5f4";
+import { deviceAccess, devices } from "@/db/schema";
+import { ensureIotDevice } from "@/iot/registry";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
+  fastify.addHook("onRequest", fastify.authenticate);
+
   const DeviceSummary = Type.Object({
     id: Type.String(),
     name: Type.String(),
@@ -49,7 +51,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         },
       },
     },
-    async () => {
+    async (request) => {
+      const user = request.user;
+
       const rows = await fastify.db
         .select({
           id: devices.id,
@@ -61,7 +65,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
           lastSeenAt: devices.lastSeenAt,
           isOnline: devices.isOnline,
         })
-        .from(devices);
+        .from(devices)
+        .leftJoin(deviceAccess, eq(deviceAccess.deviceId, devices.id))
+        .where(or(eq(devices.ownerId, user.userId), eq(deviceAccess.userId, user.userId)));
 
       return rows.map((d) => ({
         ...d,
@@ -84,18 +90,26 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     async (request, reply) => {
       const { name, type, roomName } = request.body;
+      const user = request.user;
 
       const newDevice = {
-        ownerId: DEMO_OWNER_ID,
+        ownerId: user.userId,
         name,
         type: type ?? "home",
         roomName: roomName ?? null,
       } satisfies typeof devices.$inferInsert;
 
-      const insertedRows = await fastify.db.insert(devices).values(newDevice).returning();
-      const inserted = insertedRows[0];
+      const [inserted] = await fastify.db.insert(devices).values(newDevice).returning();
+
       if (!inserted) {
         throw fastify.httpErrors.internalServerError("Failed to create device");
+      }
+
+      try {
+        await ensureIotDevice(inserted.id);
+      } catch (err) {
+        fastify.log.error({ err }, "Failed to ensure IoT Hub device");
+        throw fastify.httpErrors.internalServerError("Failed to provision IoT Hub device");
       }
 
       return reply.code(201).send({
@@ -106,7 +120,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         wifiSsid: inserted.wifiSsid ?? null,
         isEnabled: inserted.isEnabled ?? true,
         lastDoorState: inserted.lastDoorState ?? null,
-        lastBattery: inserted.lastBattery ? Number(inserted.lastBattery) : null,
+        lastBattery: inserted.lastBattery != null ? Number(inserted.lastBattery) : null,
         lastSeenAt: inserted.lastSeenAt ? inserted.lastSeenAt.toISOString() : null,
         isOnline: inserted.isOnline ?? null,
         createdAt: inserted.createdAt.toISOString(),

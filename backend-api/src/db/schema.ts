@@ -1,9 +1,19 @@
-import { bigserial, boolean, numeric, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  bigserial,
+  boolean,
+  numeric,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: text("email").notNull().unique(),
   displayName: text("display_name").notNull(),
+  passwordHash: text("password_hash"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -20,6 +30,14 @@ export const devices = pgTable("devices", {
   lastDoorState: text("last_door_state"),
   lastAlarmState: text("last_alarm_state"),
   isOnline: boolean("is_online"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const deviceAccess = pgTable("device_access", {
+  id: serial("id").primaryKey(),
+  deviceId: uuid("device_id").notNull(),
+  userId: uuid("user_id").notNull(),
+  role: text("role").notNull().default("viewer"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -3,10 +3,12 @@ import { Type, type Static } from "@sinclair/typebox";
 import { eq } from "drizzle-orm";
 
 import { alarmEvents, devices } from "@/db/schema";
-
-const DEMO_USER_ID = "275eab68-f109-4bb7-ba30-446c620fc5f4";
+import { sendAlarmCommandToDevice } from "@/iot/iothub";
+import type { JwtUser } from "@/types/user";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
+  fastify.addHook("onRequest", fastify.authenticate);
+
   const Params = Type.Object({
     deviceId: Type.String(),
   });
@@ -37,6 +39,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     async (request, reply) => {
       const { deviceId } = request.params;
       const { action } = request.body;
+      const user = request.user as JwtUser;
 
       const now = new Date();
       const eventType = action === "on" ? "alarm_on" : "alarm_off";
@@ -46,7 +49,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         deviceId,
         eventType,
         ts: now,
-        triggeredByUserId: DEMO_USER_ID,
+        triggeredByUserId: user.userId,
       });
 
       await fastify.db
@@ -57,6 +60,20 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
           isOnline: true,
         })
         .where(eq(devices.id, deviceId));
+
+      if (deviceId) {
+        try {
+          await sendAlarmCommandToDevice(deviceId, action === "on");
+          request.log.info({ deviceId, action }, "C2D alarm command sent");
+        } catch (err) {
+          request.log.error({ err, deviceId }, "Failed to send C2D alarm command");
+        }
+      } else {
+        request.log.warn(
+          { deviceId },
+          "No IoT device mapping for this backend device; skipping C2D",
+        );
+      }
 
       return reply.send({
         ok: true,

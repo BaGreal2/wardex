@@ -13,17 +13,15 @@ export function buildApp() {
     logger: true,
   }).withTypeProvider<TypeBoxTypeProvider>();
 
-  // plugins (db, swagger, etc.)
   app.register(AutoLoad, {
     dir: join(__dirname, "plugins"),
   });
 
-  // routes
   app.register(AutoLoad, {
     dir: join(__dirname, "routes"),
     options: { prefix: "/api" },
     dirNameRoutePrefix: true,
-    routeParams: true
+    routeParams: true,
   });
 
   return app;

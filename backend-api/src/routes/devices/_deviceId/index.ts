@@ -1,10 +1,13 @@
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { Type, type Static } from "@sinclair/typebox";
-import { eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 
-import { devices } from "@/db/schema";
+import { deviceAccess, devices } from "@/db/schema";
+import type { JwtUser } from "@/types/user";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
+  fastify.addHook("onRequest", fastify.authenticate);
+
   const Params = Type.Object({
     deviceId: Type.String(),
   });
@@ -36,14 +39,37 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async (request, reply) => {
+      const user = request.user as JwtUser;
       const { deviceId } = request.params;
 
-      const rows = await fastify.db.select().from(devices).where(eq(devices.id, deviceId)).limit(1);
+      const rows = await fastify.db
+        .select({
+          id: devices.id,
+          name: devices.name,
+          type: devices.type,
+          roomName: devices.roomName,
+          wifiSsid: devices.wifiSsid,
+          isEnabled: devices.isEnabled,
+          lastDoorState: devices.lastDoorState,
+          lastBattery: devices.lastBattery,
+          lastSeenAt: devices.lastSeenAt,
+          isOnline: devices.isOnline,
+          createdAt: devices.createdAt,
+        })
+        .from(devices)
+        .leftJoin(deviceAccess, eq(deviceAccess.deviceId, devices.id))
+        .where(
+          and(
+            eq(devices.id, deviceId),
+            or(eq(devices.ownerId, user.userId), eq(deviceAccess.userId, user.userId)),
+          ),
+        )
+        .limit(1);
 
       const d = rows[0];
 
       if (!d) {
-        throw fastify.httpErrors.notFound("Device not found");
+        throw fastify.httpErrors.notFound("Device not found or no access");
       }
 
       return reply.send({
@@ -52,7 +78,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         type: d.type,
         roomName: d.roomName,
         wifiSsid: d.wifiSsid ?? null,
-        isEnabled: d.isEnabled ?? true,
+        isEnabled: d.isEnabled,
         lastDoorState: d.lastDoorState ?? null,
         lastBattery: d.lastBattery != null ? Number(d.lastBattery) : null,
         lastSeenAt: d.lastSeenAt ? d.lastSeenAt.toISOString() : null,
