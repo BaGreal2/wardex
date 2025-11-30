@@ -4,10 +4,6 @@ const BACKEND_BASE_URL =
   process.env.BACKEND_BASE_URL ?? "http://localhost:3000";
 const EVENT_HUB_NAME = process.env.EVENT_HUB_NAME;
 
-const DEVICE_MAP = {
-  DoorSensor01: "3e76293a-f6df-4b4f-811a-5f3f8a0df69d",
-};
-
 app.eventHub("DoorEventsFromIotHub", {
   connection: "IotHubEventHubConnection",
   eventHubName: EVENT_HUB_NAME,
@@ -25,14 +21,6 @@ app.eventHub("DoorEventsFromIotHub", {
       const iotDeviceId = sys["iothub-connection-device-id"];
       if (!iotDeviceId) {
         context.log.warn("No iothub-connection-device-id, skipping message.");
-        continue;
-      }
-
-      const backendDeviceId = DEVICE_MAP[iotDeviceId];
-      if (!backendDeviceId) {
-        context.log.warn(
-          `No backend mapping for IoT device ${iotDeviceId}, skipping`,
-        );
         continue;
       }
 
@@ -60,7 +48,7 @@ app.eventHub("DoorEventsFromIotHub", {
         ts: body.ts ?? Math.floor(Date.now() / 1000),
       };
 
-      const url = `${BACKEND_BASE_URL}/api/devices/${backendDeviceId}/events/ingest`;
+      const url = `${BACKEND_BASE_URL}/api/devices/${iotDeviceId}/events/ingest`;
       context.log(`Forwarding event from ${iotDeviceId} to ${url}`, payload);
 
       try {
