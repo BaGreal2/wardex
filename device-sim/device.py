@@ -1,4 +1,5 @@
 import os
+import sys
 import ssl
 import random
 import base64
@@ -17,6 +18,21 @@ load_dotenv()
 HUB_NAME = os.getenv("HUB_NAME")
 DEVICE_ID = os.getenv("DEVICE_ID")
 DEVICE_KEY = os.getenv("DEVICE_KEY")
+
+cli_device_id = sys.argv[1] if len(sys.argv) > 1 else None
+cli_device_key = sys.argv[2] if len(sys.argv) > 2 else None
+
+if cli_device_id:
+    DEVICE_ID = cli_device_id
+
+if cli_device_key:
+    DEVICE_KEY = cli_device_key
+
+if not DEVICE_ID:
+    raise RuntimeError("DEVICE_ID must be set via env or CLI")
+
+if not DEVICE_KEY:
+    raise RuntimeError("DEVICE_KEY must be set via env or CLI")
 
 USERNAME = f"{HUB_NAME}.azure-devices.net/{DEVICE_ID}/?api-version=2021-04-12"
 BROKER = f"{HUB_NAME}.azure-devices.net"
