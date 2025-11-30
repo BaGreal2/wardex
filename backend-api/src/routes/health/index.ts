@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.get(
-    "/health",
+    "/",
     {
       schema: {
         tags: ["system"],
