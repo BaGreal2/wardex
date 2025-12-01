@@ -96,7 +96,7 @@
       disabled={loading}
     >
       {#if loading}
-        Creating…
+        Creating...
       {:else}
         Save device
       {/if}

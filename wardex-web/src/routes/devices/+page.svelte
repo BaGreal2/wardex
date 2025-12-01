@@ -165,7 +165,7 @@
 
   <!-- Devices list -->
   {#if loading}
-    <p class="text-sm text-slate-300">Loading devices…</p>
+    <p class="text-sm text-slate-300">Loading devices...</p>
   {:else if devices.length === 0}
     <div class="rounded-lg border border-dashed border-slate-700 bg-slate-900/60 px-3 py-4 text-xs">
       <p class="text-slate-300 mb-1 font-medium">

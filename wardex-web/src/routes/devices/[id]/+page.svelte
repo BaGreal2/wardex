@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
-  import { api } from '$lib/api';
+  import { onMount } from "svelte";
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation";
+  import { api } from "$lib/api";
+  import { cn } from "$lib/utils/cn";
 
-  $: deviceId = $page.url?.pathname.split('/').at(-1) ?? '';
+  $: deviceId = page.url?.pathname.split("/").at(-1) ?? "";
 
   type DeviceDetail = {
     id: string;
@@ -40,7 +41,7 @@
   let alarmEvents: AlarmEvent[] = [];
   let loading = true;
   let error: string | null = null;
-  let tab: 'events' | 'alarms' = 'events';
+  let tab: "events" | "alarms" = "events";
   let togglingAlarm = false;
 
   const loadAll = async () => {
@@ -58,25 +59,25 @@
       events = ev;
       alarmEvents = aev;
     } catch (e) {
-      error = e instanceof Error ? e.message : 'Failed to load device';
+      error = e instanceof Error ? e.message : "Failed to load device";
     } finally {
       loading = false;
     }
   };
 
   const goBack = () => {
-    goto('/');
+    goto("/");
   };
 
   const toggleAlarm = async () => {
     if (!device || !deviceId) return;
     togglingAlarm = true;
     try {
-      const action = device.lastAlarmState === 'alarm' ? 'off' : 'on';
+      const action = device.lastAlarmState === "alarm" ? "off" : "on";
 
       const res = await api.post<{
         ok: boolean;
-        alarmState: 'alarm' | 'idle';
+        alarmState: "alarm" | "idle";
       }>(`/api/devices/${deviceId}/alarm`, { action });
 
       device = { ...device, lastAlarmState: res.alarmState };
@@ -93,7 +94,7 @@
 </script>
 
 {#if loading}
-  <p class="text-sm text-slate-300">Loading device…</p>
+  <p class="text-sm text-slate-300">Loading device...</p>
 {:else if error}
   <div class="space-y-4">
     <button
@@ -118,9 +119,7 @@
       </button>
 
       <div class="text-right">
-        <div class="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80">
-          Wardex Guard
-        </div>
+        <div class="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80">Wardex Guard</div>
         <h2 class="text-lg font-semibold truncate max-w-[220px]">
           {device.name}
         </h2>
@@ -142,15 +141,13 @@
           <div class="text-sm">
             Door:
             <span
-              class={
-                device.lastDoorState === 'open'
-                  ? 'text-amber-300 font-semibold'
-                  : device.lastDoorState === 'close'
-                  ? 'text-emerald-300 font-semibold'
-                  : 'text-slate-200'
-              }
+              class={device.lastDoorState === "open"
+                ? "text-amber-300 font-semibold"
+                : device.lastDoorState === "close"
+                  ? "text-emerald-300 font-semibold"
+                  : "text-slate-200"}
             >
-              {device.lastDoorState ?? 'unknown'}
+              {device.lastDoorState ?? "unknown"}
             </span>
           </div>
         </div>
@@ -158,20 +155,21 @@
         <div class="text-right text-xs text-slate-400 space-y-1">
           <div class="flex justify-end gap-1 items-center">
             <span
-              class={`h-2 w-2 rounded-full ${
+              class={cn(
+                "h-2 w-2 rounded-full",
                 device.isOnline
-                  ? 'bg-emerald-400'
+                  ? "bg-emerald-400"
                   : device.isOnline === false
-                  ? 'bg-red-400'
-                  : 'bg-slate-500'
-              }`}
-            />
+                    ? "bg-red-400"
+                    : "bg-slate-500"
+              )}
+            ></span>
             <span>
               {device.isOnline === true
-                ? 'Online'
+                ? "Online"
                 : device.isOnline === false
-                ? 'Offline'
-                : 'Unknown'}
+                  ? "Offline"
+                  : "Unknown"}
             </span>
           </div>
           <div>
@@ -196,7 +194,7 @@
         </div>
         <div>
           Wi‑Fi:
-          {device.wifiSsid ?? 'not set'}
+          {device.wifiSsid ?? "not set"}
         </div>
         <div>
           Created:
@@ -210,17 +208,18 @@
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium">Alarm</span>
         <button
-          class={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-            device.lastAlarmState === 'alarm'
-              ? 'bg-red-500 text-slate-950 hover:bg-red-400'
-              : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400'
-          } disabled:opacity-60`}
+          class={cn(
+            "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors  disabled:opacity-60",
+            device.lastAlarmState === "alarm"
+              ? "bg-red-500 text-slate-950 hover:bg-red-400"
+              : "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+          )}
           on:click={toggleAlarm}
           disabled={togglingAlarm}
         >
           {#if togglingAlarm}
-            Working…
-          {:else if device.lastAlarmState === 'alarm'}
+            Working...
+          {:else if device.lastAlarmState === "alarm"}
             Disable alarm
           {:else}
             Enable alarm
@@ -228,37 +227,35 @@
         </button>
       </div>
       <p class="text-[11px] text-slate-400">
-        When alarm is enabled and the door opens, the device simulator prints
-        “ALARM TRIGGERED” and alarm events are stored in Wardex backend.
+        When alarm is enabled and the door opens, the device simulator prints “ALARM TRIGGERED” and
+        alarm events are stored in Wardex backend.
       </p>
     </div>
 
     <!-- Tabs -->
     <div class="border-b border-slate-800 flex text-sm">
       <button
-        class={`flex-1 py-2 text-center transition-colors ${
-          tab === 'events'
-            ? 'border-b-2 border-emerald-400 text-emerald-300'
-            : 'text-slate-400'
-        }`}
-        on:click={() => (tab = 'events')}
+        class={cn(
+          "flex-1 py-2 text-center transition-colors",
+          tab === "events" ? "border-b-2 border-emerald-400 text-emerald-300" : "text-slate-400"
+        )}
+        on:click={() => (tab = "events")}
       >
         Door events
       </button>
       <button
-        class={`flex-1 py-2 text-center transition-colors ${
-          tab === 'alarms'
-            ? 'border-b-2 border-emerald-400 text-emerald-300'
-            : 'text-slate-400'
-        }`}
-        on:click={() => (tab = 'alarms')}
+        class={cn(
+          "flex-1 py-2 text-center transition-colors",
+          tab === "alarms" ? "border-b-2 border-emerald-400 text-emerald-300" : "text-slate-400"
+        )}
+        on:click={() => (tab = "alarms")}
       >
         Alarm history
       </button>
     </div>
 
     <!-- Lists -->
-    {#if tab === 'events'}
+    {#if tab === "events"}
       {#if events.length === 0}
         <p class="text-sm text-slate-400">No events yet.</p>
       {:else}
@@ -282,7 +279,7 @@
                 </div>
                 <div>
                   Alarm enabled:
-                  {ev.alarmEnabled === true ? 'yes' : 'no'}
+                  {ev.alarmEnabled === true ? "yes" : "no"}
                 </div>
               </div>
               <div class="text-right text-[11px] text-slate-400">
@@ -292,25 +289,23 @@
           {/each}
         </div>
       {/if}
+    {:else if alarmEvents.length === 0}
+      <p class="text-sm text-slate-400">No alarm events yet.</p>
     {:else}
-      {#if alarmEvents.length === 0}
-        <p class="text-sm text-slate-400">No alarm events yet.</p>
-      {:else}
-        <div class="space-y-2 max-h-72 overflow-y-auto pr-1">
-          {#each alarmEvents as ev}
-            <div
-              class="rounded border border-slate-800 bg-slate-900 px-3 py-2 text-xs flex justify-between"
-            >
-              <div class="font-semibold capitalize">
-                {ev.eventType.replace('_', ' ')}
-              </div>
-              <div class="text-right text-[11px] text-slate-400">
-                {new Date(ev.ts).toLocaleString()}
-              </div>
+      <div class="space-y-2 max-h-72 overflow-y-auto pr-1">
+        {#each alarmEvents as ev}
+          <div
+            class="rounded border border-slate-800 bg-slate-900 px-3 py-2 text-xs flex justify-between"
+          >
+            <div class="font-semibold capitalize">
+              {ev.eventType.replace("_", " ")}
             </div>
-          {/each}
-        </div>
-      {/if}
+            <div class="text-right text-[11px] text-slate-400">
+              {new Date(ev.ts).toLocaleString()}
+            </div>
+          </div>
+        {/each}
+      </div>
     {/if}
   </div>
 {/if}

@@ -110,7 +110,7 @@
       disabled={loading}
     >
       {#if loading}
-        Signing in…
+        Signing in...
       {:else}
         Sign in
       {/if}

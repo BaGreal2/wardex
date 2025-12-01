@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
-  import { api } from '$lib/api';
+  import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
+  import { api } from "$lib/api";
+  import { cn } from "$lib/utils/cn";
 
   type DeviceSummary = {
     id: string;
@@ -22,9 +23,9 @@
     loading = true;
     error = null;
     try {
-      devices = await api.get<DeviceSummary[]>('/api/devices');
+      devices = await api.get<DeviceSummary[]>("/api/devices");
     } catch (e) {
-      error = e instanceof Error ? e.message : 'Failed to load devices';
+      error = e instanceof Error ? e.message : "Failed to load devices";
     } finally {
       loading = false;
     }
@@ -35,7 +36,7 @@
   };
 
   const goToNewDevice = () => {
-    goto('/devices/new');
+    goto("/devices/new");
   };
 
   onMount(loadDevices);
@@ -45,9 +46,7 @@
   <!-- Header -->
   <header class="flex items-center justify-between">
     <div>
-      <div
-        class="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80 mb-1"
-      >
+      <div class="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80 mb-1">
         Wardex Guard
       </div>
       <h1 class="text-xl font-semibold">My doors</h1>
@@ -62,7 +61,7 @@
       disabled={loading}
     >
       {#if loading}
-        Refreshing…
+        Refreshing...
       {:else}
         Refresh
       {/if}
@@ -80,17 +79,18 @@
 
   <!-- Content -->
   {#if loading}
-    <div class="mt-6 text-sm text-slate-300">Loading devices…</div>
+    <div class="mt-6 text-sm text-slate-300">Loading devices...</div>
   {:else if error}
     <div class="mt-4 rounded border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
       {error}
     </div>
   {:else if devices.length === 0}
-    <div class="mt-6 rounded-lg border border-dashed border-slate-700 bg-slate-900/70 px-4 py-5 text-sm text-slate-300">
+    <div
+      class="mt-6 rounded-lg border border-dashed border-slate-700 bg-slate-900/70 px-4 py-5 text-sm text-slate-300"
+    >
       <p class="font-medium mb-1">No devices yet</p>
       <p class="text-xs text-slate-400">
-        Use “Add door device” above to register the first sensor in your Wardex
-        Guard system.
+        Use “Add door device” above to register the first sensor in your Wardex Guard system.
       </p>
     </div>
   {:else}
@@ -117,15 +117,13 @@
               <span>
                 Door:
                 <span
-                  class={
-                    d.lastDoorState === 'open'
-                      ? 'text-amber-300'
-                      : d.lastDoorState === 'close'
-                      ? 'text-emerald-300'
-                      : 'text-slate-300'
-                  }
+                  class={d.lastDoorState === "open"
+                    ? "text-amber-300"
+                    : d.lastDoorState === "close"
+                      ? "text-emerald-300"
+                      : "text-slate-300"}
                 >
-                  {d.lastDoorState ?? 'unknown'}
+                  {d.lastDoorState ?? "unknown"}
                 </span>
               </span>
               <span>•</span>
@@ -143,20 +141,17 @@
           <div class="flex flex-col items-end gap-1 text-[11px]">
             <div class="flex items-center gap-1.5">
               <span
-                class={`h-2 w-2 rounded-full ${
+                class={cn(
+                  "h-2 w-2 rounded-full",
                   d.isOnline
-                    ? 'bg-emerald-400'
+                    ? "bg-emerald-400"
                     : d.isOnline === false
-                    ? 'bg-red-400'
-                    : 'bg-slate-500'
-                }`}
-              />
+                      ? "bg-red-400"
+                      : "bg-slate-500"
+                )}
+              ></span>
               <span class="text-slate-400">
-                {d.isOnline === true
-                  ? 'Online'
-                  : d.isOnline === false
-                  ? 'Offline'
-                  : 'Unknown'}
+                {d.isOnline === true ? "Online" : d.isOnline === false ? "Offline" : "Unknown"}
               </span>
             </div>
             <div class="text-[10px] text-slate-500">

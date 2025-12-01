@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from "$app/state";
+  import { cn } from "$lib/utils/cn";
   import "./layout.css";
 
-  // Always safe, with fallback
-  $: pathname = $page.url?.pathname ?? '/';
-  $: isAuthRoute = pathname.startsWith('/auth');
+  $: pathname = page.url?.pathname ?? "/";
+  $: isAuthRoute = pathname.startsWith("/auth");
 
-  $: isDevicesRoute = pathname === '/' || pathname.startsWith('/devices');
-  $: isSettingsRoute = pathname.startsWith('/settings');
+  $: isDevicesRoute = pathname === "/" || pathname.startsWith("/devices");
+  $: isSettingsRoute = pathname.startsWith("/settings");
 </script>
 
 <svelte:head>
@@ -17,11 +17,7 @@
 
 <main class="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
   <!-- Content area -->
-  <div
-    class={`flex-1 mx-auto w-full max-w-md px-4 ${
-      isAuthRoute ? 'pb-8 pt-10' : 'pb-16 pt-4'
-    }`}
-  >
+  <div class={cn("flex-1 mx-auto w-full max-w-md px-4", isAuthRoute ? "pb-8 pt-10" : "pb-16 pt-4")}>
     <slot />
   </div>
 
@@ -35,20 +31,19 @@
         <a
           href="/"
           class="flex flex-col items-center gap-0.5 transition-transform hover:scale-105"
-          aria-current={isDevicesRoute ? 'page' : undefined}
+          aria-current={isDevicesRoute ? "page" : undefined}
         >
           <div
-            class={`flex h-8 w-8 items-center justify-center rounded-full border text-xs ${
+            class={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full border text-xs",
               isDevicesRoute
-                ? 'border-emerald-400 bg-emerald-400/10 text-emerald-300'
-                : 'border-slate-700 bg-slate-900 text-slate-300'
-            }`}
+                ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
+                : "border-slate-700 bg-slate-900 text-slate-300"
+            )}
           >
             🏠
           </div>
-          <span class={isDevicesRoute ? 'text-emerald-300' : 'text-slate-400'}>
-            Devices
-          </span>
+          <span class={isDevicesRoute ? "text-emerald-300" : "text-slate-400"}> Devices </span>
         </a>
 
         <!-- Add -->
@@ -68,20 +63,19 @@
         <a
           href="/settings"
           class="flex flex-col items-center gap-0.5 transition-transform hover:scale-105"
-          aria-current={isSettingsRoute ? 'page' : undefined}
+          aria-current={isSettingsRoute ? "page" : undefined}
         >
           <div
-            class={`flex h-8 w-8 items-center justify-center rounded-full border text-xs ${
+            class={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full border text-xs",
               isSettingsRoute
-                ? 'border-emerald-400 bg-emerald-400/10 text-emerald-300'
-                : 'border-slate-700 bg-slate-900 text-slate-300'
-            }`}
+                ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
+                : "border-slate-700 bg-slate-900 text-slate-300"
+            )}
           >
             ⚙️
           </div>
-          <span class={isSettingsRoute ? 'text-emerald-300' : 'text-slate-400'}>
-            Settings
-          </span>
+          <span class={isSettingsRoute ? "text-emerald-300" : "text-slate-400"}> Settings </span>
         </a>
       </div>
     </nav>

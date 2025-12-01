@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { goto } from '$app/navigation';
 
   const items = [
@@ -15,7 +15,7 @@
     }
   ];
 
-  $: pathname = $page.url.pathname;
+  $: pathname = page.url.pathname;
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + '/');

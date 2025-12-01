@@ -93,7 +93,7 @@
       disabled={loading}
     >
       {#if loading}
-        Creating…
+        Creating...
       {:else}
         Create account
       {/if}
