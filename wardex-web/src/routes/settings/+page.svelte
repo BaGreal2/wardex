@@ -30,9 +30,6 @@
         Email:
         <span class="text-slate-200">{email ?? 'unknown'}</span>
       </div>
-      <div class="text-[11px] text-slate-500 break-all">
-        User ID: {userId ?? 'unknown'}
-      </div>
     </div>
 
     <div class="rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-3 space-y-2 text-xs text-slate-400">

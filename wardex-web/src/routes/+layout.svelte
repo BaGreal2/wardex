@@ -3,11 +3,13 @@
   import { cn } from "$lib/utils/cn";
   import "./layout.css";
 
-  $: pathname = page.url?.pathname ?? "/";
-  $: isAuthRoute = pathname.startsWith("/auth");
+  const pathname = $derived(page.url?.pathname ?? "/");
+  const isAuthRoute = $derived(pathname.startsWith("/auth"));
 
-  $: isDevicesRoute = pathname === "/" || pathname.startsWith("/devices");
-  $: isSettingsRoute = pathname.startsWith("/settings");
+  const isDevicesRoute = $derived(
+    pathname === "/" || pathname.startsWith("/devices")
+  );
+  const isSettingsRoute = $derived(pathname.startsWith("/settings"));
 </script>
 
 <svelte:head>

@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { page } from "$app/state";
+  import { page } from "$app/stores";      // <- use stores here
   import { goto } from "$app/navigation";
   import { api } from "$lib/api";
   import { cn } from "$lib/utils/cn";
 
-  $: deviceId = page.url?.pathname.split("/").at(-1) ?? "";
+  // if your file is src/routes/devices/[id]/+page.svelte, param name is "id"
+  $: deviceId = $page.params.id;
 
   type DeviceDetail = {
     id: string;
@@ -45,9 +46,9 @@
   let togglingAlarm = false;
 
   const loadAll = async () => {
-    if (!deviceId) return;
     loading = true;
     error = null;
+
     try {
       const [d, ev, aev] = await Promise.all([
         api.get<DeviceDetail>(`/api/devices/${deviceId}`),
@@ -60,14 +61,15 @@
       alarmEvents = aev;
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to load device";
+      device = null;
+      events = [];
+      alarmEvents = [];
     } finally {
       loading = false;
     }
   };
 
-  const goBack = () => {
-    goto("/");
-  };
+  const goBack = () => goto("/");
 
   const toggleAlarm = async () => {
     if (!device || !deviceId) return;
@@ -81,7 +83,6 @@
       }>(`/api/devices/${deviceId}/alarm`, { action });
 
       device = { ...device, lastAlarmState: res.alarmState };
-      // Refresh alarm history
       alarmEvents = await api.get<AlarmEvent[]>(`/api/devices/${deviceId}/alarm-events`);
     } catch (e) {
       console.error(e);

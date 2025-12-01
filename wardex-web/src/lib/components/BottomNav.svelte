@@ -15,7 +15,7 @@
     }
   ];
 
-  $: pathname = page.url.pathname;
+  const pathname = $derived(page.url.pathname);
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + '/');

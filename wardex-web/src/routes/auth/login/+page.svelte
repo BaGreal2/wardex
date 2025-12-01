@@ -31,8 +31,8 @@
       });
 
       const user: AuthUser = {
-        email: res.user?.email ?? email,
-        userId: res.user?.userId ?? res.user?.id ?? ''
+        email,
+        userId: ''
       };
 
       auth.login(res.token, user);
