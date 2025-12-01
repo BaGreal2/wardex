@@ -1,12 +1,20 @@
 <script lang="ts">
-  import { api } from '$lib/api';
-  import { goto } from '$app/navigation';
-  import { auth, type AuthUser } from '$lib/stores/auth';
+  import { api } from "$lib/api";
+  import { goto } from "$app/navigation";
+  import { auth, type AuthUser } from "$lib/stores/auth";
+  import ArrowLeft from "$lib/icons/ArrowLeft.svelte";
+  import InputField from "$lib/components/InputField.svelte";
+  import MailIcon from "$lib/icons/MailIcon.svelte";
+  import LockIcon from "$lib/icons/LockIcon.svelte";
+  import Button from "$lib/components/Button.svelte";
+  import ArrowRight from "$lib/icons/ArrowRight.svelte";
 
-  let email = '';
-  let password = '';
+  let email = "";
+  let password = "";
+  let confirmPassword = "";
   let loading = false;
   let error: string | null = null;
+  let acceptedTerms = false;
 
   type RegisterResponse = {
     token: string;
@@ -19,94 +27,122 @@
 
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
+    if (!acceptedTerms) return;
+
     loading = true;
     error = null;
 
     try {
-      const res = await api.post<RegisterResponse>('/api/auth/register', {
+      const res = await api.post<RegisterResponse>("/api/auth/register", {
         email,
         password
       });
 
       const user: AuthUser = {
         email: res.user?.email ?? email,
-        userId: res.user?.userId ?? res.user?.id ?? ''
+        userId: res.user?.userId ?? res.user?.id ?? ""
       };
 
       auth.login(res.token, user);
-      goto('/');
+      goto("/");
     } catch (e) {
-      error =
-        e instanceof Error ? e.message : 'Registration failed. Try again.';
+      error = e instanceof Error ? e.message : "Registration failed. Try again.";
     } finally {
       loading = false;
     }
   };
-
-  const goLogin = () => goto('/auth/login');
 </script>
 
-<div class="space-y-6">
-  <header class="space-y-2 text-center">
-    <div class="text-[11px] uppercase tracking-[0.25em] text-emerald-400/80">
-      Wardex Guard
+<img
+  src="/images/bg-gradient-green.png"
+  class="absolute z-0 size-full object-cover md:hidden"
+  alt=""
+/>
+
+<div class="pb-8 pt-12 px-6 flex flex-col gap-5 relative z-10 min-h-dvh">
+  <header class="flex justify-between w-full items-start">
+    <a href="/auth" class="p-2">
+      <ArrowLeft class="size-6 text-[#A1A1A1]" />
+    </a>
+    <div class="flex flex-col gap-2 text-end">
+      <h1 class="text-3xl leading-9 tracking-[0.4px] font-semibold">Create Account</h1>
+      <p class="leading-6 text-[#A1A1A1] tracking-[-0.31px] font-light">
+        Start your secure journey
+      </p>
     </div>
-    <h1 class="text-xl font-semibold">Create demo account</h1>
-    <p class="text-xs text-slate-400">
-      Register a simple demo account to use with the Wardex backend.
-    </p>
   </header>
 
-  <form class="space-y-4" on:submit|preventDefault={submit}>
-    {#if error}
-      <div class="rounded border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
-        {error}
-      </div>
-    {/if}
+  <form class="flex flex-col grow justify-between" on:submit|preventDefault={submit}>
+    <div class="flex flex-col gap-4">
+      {#if error}
+        <div class="rounded border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
+          {error}
+        </div>
+      {/if}
 
-    <div class="space-y-1">
-      <label class="text-xs text-slate-300">Email</label>
-      <input
+      <InputField
+        id="email"
+        label="Email"
         type="email"
-        class="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-500/50"
-        placeholder="you@example.com"
+        placeholder="name@example.com"
         bind:value={email}
-        required
-      />
-    </div>
+      >
+        <MailIcon slot="icon" class="size-4 text-[#7B7B7B]" />
+      </InputField>
 
-    <div class="space-y-1">
-      <label class="text-xs text-slate-300">Password</label>
-      <input
+      <InputField
+        id="password"
+        label="Password"
         type="password"
-        class="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-500/50"
-        placeholder="At least 8 characters"
+        placeholder="Create password"
         bind:value={password}
-        minlength="8"
-        required
-      />
+      >
+        <LockIcon slot="icon" class="size-4 text-[#7B7B7B]" />
+      </InputField>
+
+      <InputField
+        id="confirm-password"
+        label="Confirm password"
+        type="password"
+        placeholder="Confirm password"
+        bind:value={confirmPassword}
+      >
+        <LockIcon slot="icon" class="size-4 text-[#7B7B7B]" />
+      </InputField>
+
+      <label class="mt-1 flex items-center gap-2 text-sm leading-5 text-[#A1A1A1] font-light">
+        <input
+          type="checkbox"
+          bind:checked={acceptedTerms}
+          class="h-[18px] w-[18px] appearance-none rounded-full border border-white/30 bg-transparent
+         checked:bg-white/80 checked:border-white/80
+         focus:outline-none focus:ring-2 focus:ring-sky-500"
+        />
+        <span>
+          I agree to the
+          <a href="/terms" class="underline underline-offset-2 text-white">Terms</a>
+          &amp;
+          <a href="/privacy" class="underline underline-offset-2 text-white">Privacy</a>
+        </span>
+      </label>
     </div>
 
-    <button
+    <Button
       type="submit"
-      class="w-full rounded-lg bg-emerald-500 text-slate-950 text-sm font-semibold py-2.5 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 transition-colors disabled:opacity-60"
-      disabled={loading}
+      class="w-full gap-3 h-15"
+      disabled={confirmPassword !== password ||
+        loading ||
+        !acceptedTerms ||
+        !password ||
+        !confirmPassword ||
+        !email}
     >
       {#if loading}
-        Creating...
+        Signing up...
       {:else}
-        Create account
+        Sign Up
       {/if}
-    </button>
+      <ArrowRight class="size-[18px]" />
+    </Button>
   </form>
-
-  <div class="text-center text-xs text-slate-400 space-y-1">
-    <p>Already have an account?</p>
-    <button
-      class="text-emerald-300 hover:text-emerald-200 underline underline-offset-4"
-      on:click={goLogin}
-    >
-      Sign in
-    </button>
-  </div>
 </div>

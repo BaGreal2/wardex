@@ -6,9 +6,7 @@
   const pathname = $derived(page.url?.pathname ?? "/");
   const isAuthRoute = $derived(pathname.startsWith("/auth"));
 
-  const isDevicesRoute = $derived(
-    pathname === "/" || pathname.startsWith("/devices")
-  );
+  const isDevicesRoute = $derived(pathname === "/" || pathname.startsWith("/devices"));
   const isSettingsRoute = $derived(pathname.startsWith("/settings"));
 </script>
 
@@ -17,9 +15,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
-<main class="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
+<main class="min-h-dvh flex-col">
   <!-- Content area -->
-  <div class={cn("flex-1 mx-auto w-full max-w-md px-4", isAuthRoute ? "pb-8 pt-10" : "pb-16 pt-4")}>
+  <div class={cn("flex-1 mx-auto w-full max-w-md")}>
     <slot />
   </div>
 
@@ -83,3 +81,7 @@
     </nav>
   {/if}
 </main>
+
+<style global>
+  @import "@fontsource/inter/index.css";
+</style>
