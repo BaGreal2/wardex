@@ -1,12 +1,21 @@
 <script lang="ts">
   import { api } from '$lib/api';
   import { goto } from '$app/navigation';
-  import { browser } from '$app/environment';
+  import { auth, type AuthUser } from '$lib/stores/auth';
 
   let email = '';
   let password = '';
   let loading = false;
   let error: string | null = null;
+
+  type RegisterResponse = {
+    token: string;
+    user?: {
+      id?: string;
+      userId?: string;
+      email?: string;
+    };
+  };
 
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -14,14 +23,17 @@
     error = null;
 
     try {
-      const res = await api.post<{ token: string }>('/api/auth/register', {
+      const res = await api.post<RegisterResponse>('/api/auth/register', {
         email,
         password
       });
 
-      if (browser) {
-        localStorage.setItem('token', res.token);
-      }
+      const user: AuthUser = {
+        email: res.user?.email ?? email,
+        userId: res.user?.userId ?? res.user?.id ?? ''
+      };
+
+      auth.login(res.token, user);
       goto('/');
     } catch (e) {
       error =

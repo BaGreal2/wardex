@@ -1,10 +1,12 @@
 import { get } from 'svelte/store';
-import { auth } from './stores/auth';
+import { browser } from '$app/environment';
+import { auth } from '$lib/stores/auth';
 
 const API_BASE = 'https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const { token } = get(auth);
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
@@ -13,11 +15,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
+  if (res.status === 401 && browser) {
+    auth.logout();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/auth/login';
+    }
+  }
+
   if (!res.ok) {
     let msg = `${res.status} ${res.statusText}`;
     try {
       const body = await res.json();
-      if (body.message) msg = body.message;
+      if ((body as any).message) msg = (body as any).message;
     } catch {
       // ignore
     }

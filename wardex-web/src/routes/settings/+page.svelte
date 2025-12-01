@@ -1,27 +1,13 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
-  import { STORAGE_KEY } from '$lib/stores/auth';
+  import { auth } from '$lib/stores/auth';
 
-  let email: string | null = null;
-  let userId: string | null = null;
-
-  onMount(() => {
-    if (!browser) return;
-    const {user} = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
-    if (!user) return;
-
-    try {
-      email = user.email ?? null;
-      userId = user.userId ?? null;
-    } catch { }
-  });
+  // derive from store
+  $: email = $auth.user?.email ?? null;
+  $: userId = $auth.user?.userId ?? null;
 
   const logout = () => {
-    if (browser) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    auth.logout();
     goto('/auth/login');
   };
 </script>

@@ -3,11 +3,21 @@
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
+  import { auth, STORAGE_KEY, type AuthUser } from '$lib/stores/auth';
 
   let email = '';
   let password = '';
   let loading = false;
   let error: string | null = null;
+
+  type LoginResponse = {
+    token: string;
+    user?: {
+      id?: string;
+      userId?: string;
+      email?: string;
+    };
+  };
 
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -15,14 +25,17 @@
     error = null;
 
     try {
-      const res = await api.post<{ token: string }>('/api/auth/login', {
+      const res = await api.post<LoginResponse>('/api/auth/login', {
         email,
         password
       });
 
-      if (browser) {
-        localStorage.setItem('token', res.token);
-      }
+      const user: AuthUser = {
+        email: res.user?.email ?? email,
+        userId: res.user?.userId ?? res.user?.id ?? ''
+      };
+
+      auth.login(res.token, user);
       goto('/');
     } catch (e) {
       error =
@@ -32,11 +45,19 @@
     }
   };
 
+  // If already logged in, don't show login page
   onMount(() => {
     if (!browser) return;
-    const token = localStorage.getItem('token');
-    if (token) {
-      goto('/');
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.token) {
+        goto('/');
+      }
+    } catch {
+      // ignore
     }
   });
 

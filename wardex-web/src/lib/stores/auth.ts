@@ -1,63 +1,70 @@
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 
-export type JwtUser = {
-  userId: string;
+export const STORAGE_KEY = 'wardex-auth';
+
+export type AuthUser = {
   email: string;
+  userId: string;
 };
 
 export type AuthState = {
   token: string | null;
-  user: JwtUser | null;
+  user: AuthUser | null;
 };
 
-function decodeJwt(token: string): JwtUser | null {
-  try {
-    const [, payload] = token.split('.');
-    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    const data = JSON.parse(json);
-    return { userId: data.userId, email: data.email };
-  } catch {
-    return null;
-  }
-}
+const createAuthStore = () => {
+  const initial: AuthState = {
+    token: null,
+    user: null
+  };
 
-export const STORAGE_KEY = 'wardex-auth';
+  const loadInitial = (): AuthState => {
+    if (!browser) return initial;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return initial;
 
-function loadInitial(): AuthState {
-  if (typeof localStorage === 'undefined') return { token: null, user: null };
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return { token: null, user: null };
-  try {
-    const parsed = JSON.parse(raw) as AuthState;
-    if (!parsed.token) return { token: null, user: null };
-    const user = decodeJwt(parsed.token);
-    if (!user) return { token: null, user: null };
-    return { token: parsed.token, user };
-  } catch {
-    return { token: null, user: null };
-  }
-}
+    try {
+      const parsed = JSON.parse(raw);
+      return {
+        token: parsed.token ?? null,
+        user: parsed.user ?? null
+      };
+    } catch {
+      return initial;
+    }
+  };
 
-function createAuthStore() {
   const { subscribe, set, update } = writable<AuthState>(loadInitial());
+
+  const persist = (state: AuthState) => {
+    if (!browser) return;
+
+    if (!state.token) {
+      localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  };
 
   return {
     subscribe,
-    login(token: string) {
-      const user = decodeJwt(token);
+    set,
+    update,
+    login(token: string, user: AuthUser) {
       const state: AuthState = { token, user };
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      }
       set(state);
+      persist(state);
     },
     logout() {
-      if (typeof localStorage !== 'undefined') {
+      const state: AuthState = { token: null, user: null };
+      set(state);
+      if (browser) {
         localStorage.removeItem(STORAGE_KEY);
       }
-      set({ token: null, user: null });
     }
   };
-}
+};
 
 export const auth = createAuthStore();
