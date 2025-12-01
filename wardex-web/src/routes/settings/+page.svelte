@@ -8,7 +8,7 @@
 
   const logout = () => {
     auth.logout();
-    goto('/auth/login');
+    goto('/auth');
   };
 </script>
 
