@@ -1,7 +1,3 @@
-/* Azure IoT Hub - Laser Tripwire Simulator (ESP32)
-   Fixed: Added setBufferSize for Azure's long credentials.
-*/
-
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
@@ -11,8 +7,6 @@
 #include <mbedtls/sha256.h>
 #include <mbedtls/base64.h>
 
-// --- USER CREDENTIALS ---
-// If your friend sent new data, replace these lines:
 const char* ssid = "Wokwi-GUEST";
 const char* password = "";
 
@@ -20,10 +14,8 @@ const char* iotHubHost = "WardexSecurityHub.azure-devices.net";
 const char* deviceId = "8750c37c-16ff-4b70-8c94-f7c383c69476";
 const char* deviceKey = "2WgGWxE/TxaK9r1TQSLWDZmubQqc1bBsFSFUuICBzZ4=";
 
-// MQTT Settings
 const int mqttPort = 8883; 
 
-// Pins
 const int LIGHT_PIN = 34;    
 const int ALARM_LED = 2;     
 const int BUZZER_PIN = 14;   
@@ -31,7 +23,6 @@ const int BUZZER_PIN = 14;
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
 
-// Logic Variables
 int baseline = 0;
 int thresholdVal = 0;
 const int CALIB_SAMPLES = 40;
@@ -51,7 +42,6 @@ const unsigned long DEBOUNCE_MS = 80;
 String getTelemetryTopic() { return "devices/" + String(deviceId) + "/messages/events/"; }
 String getC2DTopic() { return "devices/" + String(deviceId) + "/messages/devicebound/#"; }
 
-// --- SAS TOKEN GENERATION ---
 String generateSASToken(String host, String deviceId, String key, int expiryDurationInSeconds = 3600) {
   unsigned long now = time(nullptr);
   unsigned long expiry = now + expiryDurationInSeconds;
@@ -139,9 +129,6 @@ void connectToAzure() {
     String sasToken = generateSASToken(iotHubHost, deviceId, deviceKey);
     String username = String(iotHubHost) + "/" + String(deviceId) + "/?api-version=2018-06-30";
 
-    // Debugging info
-    // Serial.println("User: " + username); 
-    
     if (client.connect(deviceId, username.c_str(), sasToken.c_str())) {
       Serial.println(" connected!");
       client.subscribe(getC2DTopic().c_str());
@@ -198,7 +185,6 @@ void setup() {
   client.setServer(iotHubHost, mqttPort);
   client.setCallback(mqttCallback);
   
-  // *** CRITICAL FIX: Increase buffer size for long Azure Credentials ***
   client.setBufferSize(2048); 
 
   delay(500);
