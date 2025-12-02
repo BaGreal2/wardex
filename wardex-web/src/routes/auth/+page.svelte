@@ -1,5 +1,24 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
   import LinkButton from "$lib/components/LinkButton.svelte";
+  import { STORAGE_KEY } from "$lib/stores/auth";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    if (!browser) return;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.token) {
+        goto("/");
+      }
+    } catch {
+      // ignore
+    }
+  });
 </script>
 
 <img
