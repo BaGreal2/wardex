@@ -37,7 +37,7 @@
         <a
           href="/"
           class={cn(
-            "flex relative basis-1/3 flex-1 items-center transition-transform hover:scale-105 text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
+            "flex relative basis-1/3 flex-1 items-center transition-transform text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
             isDevicesRoute ? "text-white bg-[#27272A]" : "text-[#71717B]"
           )}
           aria-current={isDevicesRoute ? "page" : undefined}
@@ -60,7 +60,7 @@
         <a
           href="/"
           class={cn(
-            "flex relative basis-1/3 flex-1 items-center transition-transform hover:scale-105 text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
+            "flex relative basis-1/3 flex-1 items-center transition-transform text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
             isActivityRoute ? "text-white bg-[#27272A]" : "text-[#71717B]"
           )}
           aria-current={isActivityRoute ? "page" : undefined}
@@ -83,7 +83,7 @@
         <a
           href="/settings"
           class={cn(
-            "flex relative basis-1/3 flex-1 items-center transition-transform hover:scale-105 text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
+            "flex relative basis-1/3 flex-1 items-center transition-transform text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
             isSettingsRoute ? "text-white bg-[#27272A]" : "text-[#71717B]"
           )}
           aria-current={isSettingsRoute ? "page" : undefined}
