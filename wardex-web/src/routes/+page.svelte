@@ -88,13 +88,13 @@
 
   <div class="flex grow w-full flex-col">
     {#if loading}
-      <div class="text-lg text-white">Loading devices...</div>
+      <div class="text-lg text-white mx-auto mt-10">Loading devices...</div>
     {:else if error}
-      <div class="rounded border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
+      <div class="rounded mt-10 border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
         {error}
       </div>
     {:else if devices.length === 0}
-      <div class="text-lg text-white">No devices yet</div>
+      <div class="text-lg text-white mt-10 mx-auto">No devices yet</div>
     {:else}
       <div class="flex flex-col gap-3">
         {#each devices as d}
