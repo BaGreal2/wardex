@@ -1,5 +1,11 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import HouseActiveIcon from "$lib/icons/HouseActiveIcon.svelte";
+  import HouseInactiveIcon from "$lib/icons/HouseInactiveIcon.svelte";
+  import ProfileActiveIcon from "$lib/icons/ProfileActiveIcon.svelte";
+  import ProfileInactiveIcon from "$lib/icons/ProfileInactiveIcon.svelte";
+  import ShieldActiveIcon from "$lib/icons/ShieldActiveIcon.svelte";
+  import ShieldInactiveIcon from "$lib/icons/ShieldInactiveIcon.svelte";
   import { cn } from "$lib/utils/cn";
   import "./layout.css";
 
@@ -7,6 +13,7 @@
   const isAuthRoute = $derived(pathname.startsWith("/auth"));
 
   const isDevicesRoute = $derived(pathname === "/" || pathname.startsWith("/devices"));
+  const isActivityRoute = $derived(pathname.startsWith("/activity"));
   const isSettingsRoute = $derived(pathname.startsWith("/settings"));
 </script>
 
@@ -23,59 +30,77 @@
 
   <!-- Bottom nav (hidden on auth) -->
   {#if !isAuthRoute}
-    <nav
-      class="fixed inset-x-0 bottom-0 border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-md"
-    >
-      <div class="mx-auto flex max-w-md items-center justify-between px-8 py-2 text-[11px]">
-        <!-- Devices -->
+    <nav class="fixed inset-x-0 bottom-0 py-2.5 px-4 z-40">
+      <div
+        class="mx-auto flex w-full h-15 max-w-md rounded-full bg-[#18181B]/90 backdrop-blur-[25px] shadow-xl border border-[#27272A]/50 items-center justify-between p-1.5"
+      >
         <a
           href="/"
-          class="flex flex-col items-center gap-0.5 transition-transform hover:scale-105"
+          class={cn(
+            "flex relative basis-1/3 flex-1 items-center transition-transform hover:scale-105 text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
+            isDevicesRoute ? "text-white bg-[#27272A]" : "text-[#71717B]"
+          )}
           aria-current={isDevicesRoute ? "page" : undefined}
         >
-          <div
-            class={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full border text-xs",
-              isDevicesRoute
-                ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
-                : "border-slate-700 bg-slate-900 text-slate-300"
-            )}
-          >
-            🏠
+          {#if isDevicesRoute}
+            <div
+              class="absolute left-0 top-0 z-0 size-full opacity-10 bg-radial from-white to-white/0"
+            ></div>
+          {/if}
+          <div class="relatize z-10 size-full flex flex-col gap-0.5 items-center justify-center">
+            {#if isDevicesRoute}
+              <HouseActiveIcon class="size-5" />
+            {:else}
+              <HouseInactiveIcon class="size-5" />
+            {/if}
+            <span>Home</span>
           </div>
-          <span class={isDevicesRoute ? "text-emerald-300" : "text-slate-400"}> Devices </span>
         </a>
 
-        <!-- Add -->
         <a
-          href="/devices/new"
-          class="flex flex-col items-center gap-0.5 transition-transform hover:scale-105"
+          href="/"
+          class={cn(
+            "flex relative basis-1/3 flex-1 items-center transition-transform hover:scale-105 text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
+            isActivityRoute ? "text-white bg-[#27272A]" : "text-[#71717B]"
+          )}
+          aria-current={isActivityRoute ? "page" : undefined}
         >
-          <div
-            class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/30"
-          >
-            +
+          {#if isActivityRoute}
+            <div
+              class="absolute left-0 top-0 z-0 size-full opacity-10 bg-radial from-white to-white/0"
+            ></div>
+          {/if}
+          <div class="relatize z-10 size-full flex flex-col gap-0.5 items-center justify-center">
+            {#if isActivityRoute}
+              <ShieldActiveIcon class="size-5" />
+            {:else}
+              <ShieldInactiveIcon class="size-5" />
+            {/if}
+            <span>Activity</span>
           </div>
-          <span class="text-slate-200">Add</span>
         </a>
 
-        <!-- Settings -->
         <a
           href="/settings"
-          class="flex flex-col items-center gap-0.5 transition-transform hover:scale-105"
+          class={cn(
+            "flex relative basis-1/3 flex-1 items-center transition-transform hover:scale-105 text-[10px] tracking-[0.12px] text-center rounded-full h-full justify-center",
+            isSettingsRoute ? "text-white bg-[#27272A]" : "text-[#71717B]"
+          )}
           aria-current={isSettingsRoute ? "page" : undefined}
         >
-          <div
-            class={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full border text-xs",
-              isSettingsRoute
-                ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
-                : "border-slate-700 bg-slate-900 text-slate-300"
-            )}
-          >
-            ⚙️
+          {#if isSettingsRoute}
+            <div
+              class="absolute left-0 top-0 z-0 size-full opacity-10 bg-radial from-white to-white/0"
+            ></div>
+          {/if}
+          <div class="relatize z-10 size-full flex flex-col gap-0.5 items-center justify-center">
+            {#if isSettingsRoute}
+              <ProfileActiveIcon class="size-5" />
+            {:else}
+              <ProfileInactiveIcon class="size-5" />
+            {/if}
+            <span>Profile</span>
           </div>
-          <span class={isSettingsRoute ? "text-emerald-300" : "text-slate-400"}> Settings </span>
         </a>
       </div>
     </nav>
