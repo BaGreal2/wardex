@@ -57,6 +57,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         .update(devices)
         .set({
           lastDoorState: door,
+          lastAlarmState: alarmEnabled != null ? (alarmEnabled ? "alarm" : "idle") : null,
           lastBattery: battery,
           lastSeenAt: tsDate,
           isOnline: true,

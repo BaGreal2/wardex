@@ -5,6 +5,8 @@ import fs from "node:fs";
 
 import { buildApp } from "./app";
 
+const isDev = process.env.ENV === "dev";
+
 const keyPath =
   process.env.TLS_KEY_PATH ??
   "/etc/letsencrypt/live/wardex-vm.switzerlandnorth.cloudapp.azure.com/privkey.pem";
@@ -12,10 +14,12 @@ const certPath =
   process.env.TLS_CERT_PATH ??
   "/etc/letsencrypt/live/wardex-vm.switzerlandnorth.cloudapp.azure.com/fullchain.pem";
 
-const httpsOpts = {
-  key: fs.readFileSync(keyPath),
-  cert: fs.readFileSync(certPath),
-};
+const httpsOpts = isDev
+  ? undefined
+  : {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  };
 
 const port = Number(process.env.PORT ?? 3443);
 
@@ -26,4 +30,3 @@ app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);
   process.exit(1);
 });
-

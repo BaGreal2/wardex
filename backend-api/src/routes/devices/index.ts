@@ -14,6 +14,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     type: Type.String(),
     roomName: Type.Union([Type.String(), Type.Null()]),
     lastDoorState: Type.Union([Type.String(), Type.Null()]),
+    lastAlarmState: Type.Union([Type.String(), Type.Null()]),
     lastBattery: Type.Union([Type.Number(), Type.Null()]),
     lastSeenAt: Type.Union([Type.String(), Type.Null()]),
     isOnline: Type.Union([Type.Boolean(), Type.Null()]),
@@ -35,10 +36,12 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     wifiSsid: Type.Union([Type.String(), Type.Null()]),
     isEnabled: Type.Boolean(),
     lastDoorState: Type.Union([Type.String(), Type.Null()]),
+    lastAlarmState: Type.Union([Type.String(), Type.Null()]),
     lastBattery: Type.Union([Type.Number(), Type.Null()]),
     lastSeenAt: Type.Union([Type.String(), Type.Null()]),
     isOnline: Type.Union([Type.Boolean(), Type.Null()]),
     createdAt: Type.String(),
+    deviceKey: Type.Union([Type.String(), Type.Null()]),
   });
 
   fastify.get(
@@ -61,6 +64,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
           type: devices.type,
           roomName: devices.roomName,
           lastDoorState: devices.lastDoorState,
+          lastAlarmState: devices.lastAlarmState,
           lastBattery: devices.lastBattery,
           lastSeenAt: devices.lastSeenAt,
           isOnline: devices.isOnline,
@@ -105,11 +109,18 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         throw fastify.httpErrors.internalServerError("Failed to create device");
       }
 
+      let deviceKey: string | null = null;
+
       try {
-        await ensureIotDevice(inserted.id);
+        const res = await ensureIotDevice(inserted.id);
+        deviceKey = res.primaryKey;
       } catch (err) {
         fastify.log.error({ err }, "Failed to ensure IoT Hub device");
         throw fastify.httpErrors.internalServerError("Failed to provision IoT Hub device");
+      }
+
+      if (deviceKey) {
+        await fastify.db.update(devices).set({ deviceKey }).where(eq(devices.id, inserted.id));
       }
 
       return reply.code(201).send({
@@ -120,10 +131,12 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         wifiSsid: inserted.wifiSsid ?? null,
         isEnabled: inserted.isEnabled ?? true,
         lastDoorState: inserted.lastDoorState ?? null,
+        lastAlarmState: inserted.lastAlarmState ?? null,
         lastBattery: inserted.lastBattery != null ? Number(inserted.lastBattery) : null,
         lastSeenAt: inserted.lastSeenAt ? inserted.lastSeenAt.toISOString() : null,
         isOnline: inserted.isOnline ?? null,
         createdAt: inserted.createdAt.toISOString(),
+        deviceKey: deviceKey ?? null,
       });
     },
   );

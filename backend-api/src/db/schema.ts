@@ -31,6 +31,8 @@ export const devices = pgTable("devices", {
   lastAlarmState: text("last_alarm_state"),
   isOnline: boolean("is_online"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+
+  deviceKey: text("device_key"),
 });
 
 export const deviceAccess = pgTable("device_access", {

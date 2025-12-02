@@ -30,7 +30,7 @@ function buildSasToken(resourceUri: string, ttlSeconds = 3600): string {
   return `SharedAccessSignature sr=${encodedUri}&sig=${encodedSig}&se=${expiry}&skn=${keyName}`;
 }
 
-export async function ensureIotDevice(deviceId: string): Promise<void> {
+export async function ensureIotDevice(deviceId: string): Promise<{ primaryKey: string | null }> {
   const path = `/devices/${encodeURIComponent(deviceId)}?api-version=2021-04-12`;
   const resourceUri = `${hostName}${path}`;
 
@@ -41,7 +41,7 @@ export async function ensureIotDevice(deviceId: string): Promise<void> {
     status: "enabled",
   });
 
-  await new Promise<void>((resolve, reject) => {
+  return new Promise<{ primaryKey: string | null }>((resolve, reject) => {
     const req = https.request(
       {
         host: hostName,
@@ -54,18 +54,25 @@ export async function ensureIotDevice(deviceId: string): Promise<void> {
         },
       },
       (res) => {
-        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-          resolve();
-        } else if (res.statusCode === 409) {
-          resolve();
-        } else {
-          let chunks: Buffer[] = [];
-          res.on("data", (c) => chunks.push(c));
-          res.on("end", () => {
+        if (res.statusCode === 409) {
+          resolve({ primaryKey: null });
+          return;
+        }
+
+        let chunks: Buffer[] = [];
+
+        res.on("data", (c) => chunks.push(c));
+        res.on("end", () => {
+          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+            const text = Buffer.concat(chunks).toString("utf8");
+            const json = JSON.parse(text);
+            const primaryKey = json?.authentication?.symmetricKey?.primaryKey ?? null;
+            resolve({ primaryKey });
+          } else {
             const text = Buffer.concat(chunks).toString("utf8");
             reject(new Error(`IoT Hub registry failed (${res.statusCode}): ${text}`));
-          });
-        }
+          }
+        });
       },
     );
 
