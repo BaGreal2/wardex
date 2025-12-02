@@ -7,21 +7,21 @@
 <button
   {...$$restProps}
   class={cn(
-    "flex relative justify-center gap-2 py-4 px-6 overflow-hidden items-center text-lg leading-7 tracking-[-0.44px] font-semibold text-center rounded-[14px] border-2 disabled:opacity-60",
+    "relative flex items-center justify-center gap-2 overflow-hidden rounded-[14px] border-2 px-6 py-4 text-center text-lg leading-7 font-semibold tracking-[-0.44px] disabled:opacity-60",
     variant === "primary"
-      ? "text-black bg-white border-black/20"
-      : "text-white bg-[#171717]/60 backdrop-blur-[25px] border-white/4",
+      ? "border-black/20 bg-white text-black"
+      : "border-white/4 bg-[#171717]/60 text-white backdrop-blur-[25px]",
     $$restProps.class
   )}
 >
   <span
     class={cn(
-      "absolute left-0 top-0 z-0 size-full opacity-10",
+      "absolute top-0 left-0 z-0 size-full opacity-10",
       variant === "primary" ? "bg-radial from-white/0 to-black" : "bg-radial from-white to-white/0"
     )}
   >
   </span>
-  <span class="size-full relatize z-10 flex gap-[inherit] justify-center items-center">
+  <span class="relatize z-10 flex size-full items-center justify-center gap-[inherit]">
     <slot />
   </span>
 </button>

@@ -59,20 +59,20 @@
   alt=""
 />
 
-<div class="pb-8 pt-12 px-6 flex flex-col gap-5 relative z-10 min-h-dvh">
-  <header class="flex justify-between w-full items-start">
+<div class="relative z-10 flex min-h-dvh flex-col gap-5 px-6 pt-12 pb-8">
+  <header class="flex w-full items-start justify-between">
     <a href="/auth" class="p-2">
       <ArrowLeft class="size-6 text-[#A1A1A1]" />
     </a>
     <div class="flex flex-col gap-2 text-end">
-      <h1 class="text-3xl leading-9 tracking-[0.4px] font-semibold">Create Account</h1>
-      <p class="leading-6 text-[#A1A1A1] tracking-[-0.31px] font-light">
+      <h1 class="text-3xl leading-9 font-semibold tracking-[0.4px]">Create Account</h1>
+      <p class="leading-6 font-light tracking-[-0.31px] text-[#A1A1A1]">
         Start your secure journey
       </p>
     </div>
   </header>
 
-  <form class="flex flex-col grow justify-between" on:submit|preventDefault={submit}>
+  <form class="flex grow flex-col justify-between" on:submit|preventDefault={submit}>
     <div class="flex flex-col gap-4">
       {#if error}
         <div class="rounded border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
@@ -110,26 +110,26 @@
         <LockIcon slot="icon" class="size-4 text-[#7B7B7B]" />
       </InputField>
 
-      <label class="mt-1 flex items-center gap-2 text-sm leading-5 text-[#A1A1A1] font-light">
+      <label class="mt-1 flex items-center gap-2 text-sm leading-5 font-light text-[#A1A1A1]">
         <input
           type="checkbox"
           bind:checked={acceptedTerms}
           class="h-[18px] w-[18px] appearance-none rounded-full border border-white/30 bg-transparent
-         checked:bg-white/80 checked:border-white/80
-         focus:outline-none focus:ring-2 focus:ring-sky-500"
+         checked:border-white/80 checked:bg-white/80
+         focus:ring-2 focus:ring-sky-500 focus:outline-none"
         />
         <span>
           I agree to the
-          <a href="/terms" class="underline underline-offset-2 text-white">Terms</a>
+          <a href="/terms" class="text-white underline underline-offset-2">Terms</a>
           &amp;
-          <a href="/privacy" class="underline underline-offset-2 text-white">Privacy</a>
+          <a href="/privacy" class="text-white underline underline-offset-2">Privacy</a>
         </span>
       </label>
     </div>
 
     <Button
       type="submit"
-      class="w-full gap-3 h-15"
+      class="h-15 w-full gap-3"
       disabled={confirmPassword !== password ||
         loading ||
         !acceptedTerms ||

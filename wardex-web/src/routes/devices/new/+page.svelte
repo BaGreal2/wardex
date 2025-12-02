@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { api } from '$lib/api';
+  import { goto } from "$app/navigation";
+  import { api } from "$lib/api";
 
-  let name = '';
-  let type = 'home';
-  let roomName = '';
+  let name = "";
+  let type = "home";
+  let roomName = "";
   let loading = false;
   let error: string | null = null;
 
-  const goBack = () => goto('/');
+  const goBack = () => goto("/");
 
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -20,11 +20,10 @@
       if (type) body.type = type;
       if (roomName.trim()) body.roomName = roomName.trim();
 
-      const device = await api.post<{ id: string }>('/api/devices', body);
+      const device = await api.post<{ id: string }>("/api/devices", body);
       goto(`/devices/${device.id}`);
     } catch (e) {
-      error =
-        e instanceof Error ? e.message : 'Failed to create device. Check API.';
+      error = e instanceof Error ? e.message : "Failed to create device. Check API.";
     } finally {
       loading = false;
     }
@@ -34,15 +33,13 @@
 <div class="space-y-5">
   <div class="flex items-center justify-between">
     <button
-      class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-emerald-300 transition-colors"
+      class="inline-flex items-center gap-1 text-xs text-slate-400 transition-colors hover:text-emerald-300"
       on:click={goBack}
     >
       ← Back
     </button>
     <div class="text-right">
-      <div class="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80">
-        Wardex Guard
-      </div>
+      <div class="text-[11px] tracking-[0.2em] text-emerald-400/80 uppercase">Wardex Guard</div>
       <h1 class="text-lg font-semibold">Add device</h1>
     </div>
   </div>
@@ -86,13 +83,13 @@
     </div>
 
     <p class="text-[11px] text-slate-400">
-      When you save, Wardex backend creates a matching IoT Hub device and
-      connects it with this record.
+      When you save, Wardex backend creates a matching IoT Hub device and connects it with this
+      record.
     </p>
 
     <button
       type="submit"
-      class="w-full rounded-lg bg-emerald-500 text-slate-950 text-sm font-semibold py-2.5 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 transition-colors disabled:opacity-60"
+      class="w-full rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/30 transition-colors hover:bg-emerald-400 disabled:opacity-60"
       disabled={loading}
     >
       {#if loading}

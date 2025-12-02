@@ -27,30 +27,30 @@
   alt=""
 />
 
-<div class="flex justify-between py-8 relative z-20 flex-col min-h-dvh px-6">
+<div class="relative z-20 flex min-h-dvh flex-col justify-between px-6 py-8">
   <div
-    class="w-full grow basis-3/4 max-h-3/4 top-0 left-0 flex flex-col items-center justify-center gap-2.5"
+    class="top-0 left-0 flex max-h-3/4 w-full grow basis-3/4 flex-col items-center justify-center gap-2.5"
   >
-    <img src="/images/wardex.png" class="w-44 h-[76px]" alt="wardex" />
+    <img src="/images/wardex.png" class="h-[76px] w-44" alt="wardex" />
     <div class="text-center">
-      <span class="text-lg leading-[22px] tracking-[-0.44px] text-center text-[#A1A1A1]"
+      <span class="text-center text-lg leading-[22px] tracking-[-0.44px] text-[#A1A1A1]"
         >Secure Access.</span
       ><br />
-      <span class="font-medium text-lg leading-[22px] tracking-[-0.44px] text-center text-white/85"
+      <span class="text-center text-lg leading-[22px] font-medium tracking-[-0.44px] text-white/85"
         >Anywhere.</span
       >
     </div>
   </div>
 
-  <div class="flex flex-col gap-6.5 w-full items-center">
-    <div class="flex flex-col gap-2.5 w-full">
-      <LinkButton href="/auth/register" class="w-full h-15">Create Account</LinkButton>
-      <LinkButton href="/auth/login" variant="secondary" class="w-full h-15">Log In</LinkButton>
+  <div class="flex w-full flex-col items-center gap-6.5">
+    <div class="flex w-full flex-col gap-2.5">
+      <LinkButton href="/auth/register" class="h-15 w-full">Create Account</LinkButton>
+      <LinkButton href="/auth/login" variant="secondary" class="h-15 w-full">Log In</LinkButton>
     </div>
 
-    <div class="text-xs leading-4 text-[#737373] flex gap-4">
+    <div class="flex gap-4 text-xs leading-4 text-[#737373]">
       <a href="/auth">Terms of Service</a>
-      <span class="text-base leading-3 text-[#404040] translate-y-0.5 flex">•</span>
+      <span class="flex translate-y-0.5 text-base leading-3 text-[#404040]">•</span>
       <a href="/auth">Privacy Policy</a>
     </div>
   </div>

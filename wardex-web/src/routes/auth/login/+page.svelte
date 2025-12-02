@@ -72,18 +72,18 @@
   alt=""
 />
 
-<div class="pb-8 pt-12 px-6 flex flex-col gap-5 relative z-10 min-h-dvh">
-  <header class="flex justify-between w-full items-start">
+<div class="relative z-10 flex min-h-dvh flex-col gap-5 px-6 pt-12 pb-8">
+  <header class="flex w-full items-start justify-between">
     <a href="/auth" class="p-2">
       <ArrowLeft class="size-6 text-[#A1A1A1]" />
     </a>
     <div class="flex flex-col gap-2 text-end">
-      <h1 class="text-3xl leading-9 tracking-[0.4px] font-semibold">Welcome Back</h1>
-      <p class="leading-6 text-[#A1A1A1] tracking-[-0.31px] font-light">Sign in to continue</p>
+      <h1 class="text-3xl leading-9 font-semibold tracking-[0.4px]">Welcome Back</h1>
+      <p class="leading-6 font-light tracking-[-0.31px] text-[#A1A1A1]">Sign in to continue</p>
     </div>
   </header>
 
-  <form class="flex flex-col grow justify-between" on:submit|preventDefault={submit}>
+  <form class="flex grow flex-col justify-between" on:submit|preventDefault={submit}>
     <div class="flex flex-col gap-4">
       {#if error}
         <div class="rounded border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200">
@@ -101,7 +101,7 @@
         <MailIcon slot="icon" class="size-4 text-[#7B7B7B]" />
       </InputField>
 
-      <div class="flex flex-col gap-4 items-end">
+      <div class="flex flex-col items-end gap-4">
         <InputField
           id="password"
           label="Password"
@@ -111,13 +111,13 @@
         >
           <LockIcon slot="icon" class="size-4 text-[#7B7B7B]" />
         </InputField>
-        <a href="/auth/login" class="text-sm font-light leading-5 text-[#A1A1A1]"
+        <a href="/auth/login" class="text-sm leading-5 font-light text-[#A1A1A1]"
           >Forgot my password</a
         >
       </div>
     </div>
 
-    <Button type="submit" disabled={loading || !password || !email} class="w-full gap-3 h-15">
+    <Button type="submit" disabled={loading || !password || !email} class="h-15 w-full gap-3">
       {#if loading}
         Signing in...
       {:else}

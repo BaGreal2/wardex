@@ -24,36 +24,36 @@
   alt=""
 />
 
-<div class="flex pt-10 pb-24 relative z-20 flex-col min-h-dvh px-6 gap-7.5">
+<div class="relative z-20 flex min-h-dvh flex-col gap-7.5 px-6 pt-10 pb-24">
   <header class="flex flex-col justify-between px-4">
     <h1 class="text-2xl leading-8 font-semibold">Settings</h1>
-    <p class="text-sm text-white/65 font-light tracking-[-0.15px] leading-5">
+    <p class="text-sm leading-5 font-light tracking-[-0.15px] text-white/65">
       Manage your account and preferences
     </p>
   </header>
 
-  <div class="flex flex-col justify-between grow">
+  <div class="flex grow flex-col justify-between">
     <div class="flex flex-col gap-5">
-      <div class="rounded-3xl backdrop-blur-[25px] bg-[#171717]/60">
+      <div class="rounded-3xl bg-[#171717]/60 backdrop-blur-[25px]">
         <div
-          class="absolute left-0 top-0 z-0 size-full opacity-5 bg-radial from-white to-white/0"
+          class="absolute top-0 left-0 z-0 size-full bg-radial from-white to-white/0 opacity-5"
         ></div>
-        <div class="relative z-10 flex items-center size-full gap-4 p-4">
+        <div class="relative z-10 flex size-full items-center gap-4 p-4">
           <div
-            class="size-15 rounded-full bg-transparent border-2 border-[#27272A] flex justify-center items-center"
+            class="flex size-15 items-center justify-center rounded-full border-2 border-[#27272A] bg-transparent"
           >
             <PenIcon class="size-6 text-white/45" />
           </div>
           <div class="flex flex-col gap-2">
             <div class="flex flex-col">
-              <span class="font-medium tracking-[-0.44px] leading-7 text-lg">John Doe</span>
-              <span class="text-[#71717B] text-sm tracking-[-0.15px] leading-5 font-light"
+              <span class="text-lg leading-7 font-medium tracking-[-0.44px]">John Doe</span>
+              <span class="text-sm leading-5 font-light tracking-[-0.15px] text-[#71717B]"
                 >{email ?? "unknown"}</span
               >
             </div>
 
             <div
-              class="px-2 py-0.5 rounded-full bg-[#F0B100]/10 text-[#F0B100] text-xs leading-4 w-fit"
+              class="w-fit rounded-full bg-[#F0B100]/10 px-2 py-0.5 text-xs leading-4 text-[#F0B100]"
             >
               Pro plan
             </div>
@@ -62,17 +62,17 @@
       </div>
 
       <div class="flex flex-col gap-5">
-        <span class="text-[#D4D4D4] text-sm tracking-[-0.15px]">General</span>
-        <div class="relative bg-[#171717]/60 backdrop-blur-[25px] rounded-[14px] p-1.5">
+        <span class="text-sm tracking-[-0.15px] text-[#D4D4D4]">General</span>
+        <div class="relative rounded-[14px] bg-[#171717]/60 p-1.5 backdrop-blur-[25px]">
           <span
-            class="absolute left-0 top-0 z-0 size-full opacity-5 bg-radial from-white to-white/0"
+            class="absolute top-0 left-0 z-0 size-full bg-radial from-white to-white/0 opacity-5"
           >
           </span>
           <div class="relative z-10 flex flex-col">
             <div class="flex items-center justify-between p-4">
-              <div class="flex gap-3 items-center">
+              <div class="flex items-center gap-3">
                 <BellIcon class="size-5 text-[#9F9FA9]" />
-                <span class="font-light leading-6 tracking-[-0.31px]">Notifications</span>
+                <span class="leading-6 font-light tracking-[-0.31px]">Notifications</span>
               </div>
 
               <div class="flex items-center gap-2">
@@ -84,9 +84,9 @@
             </div>
 
             <div class="flex items-center justify-between p-4">
-              <div class="flex gap-3 items-center">
+              <div class="flex items-center gap-3">
                 <GlobeIcon class="size-5 text-[#9F9FA9]" />
-                <span class="font-light leading-6 tracking-[-0.31px]">Language</span>
+                <span class="leading-6 font-light tracking-[-0.31px]">Language</span>
               </div>
 
               <div class="flex items-center gap-2">
@@ -98,9 +98,9 @@
             </div>
 
             <div class="flex items-center justify-between p-4">
-              <div class="flex gap-3 items-center">
+              <div class="flex items-center gap-3">
                 <MoonIcon class="size-5 text-[#9F9FA9]" />
-                <span class="font-light leading-6 tracking-[-0.31px]">Appearance</span>
+                <span class="leading-6 font-light tracking-[-0.31px]">Appearance</span>
               </div>
 
               <div class="flex items-center gap-2">
@@ -115,26 +115,26 @@
       </div>
 
       <div class="flex flex-col gap-5">
-        <span class="text-[#D4D4D4] text-sm tracking-[-0.15px]">Security</span>
-        <div class="relative bg-[#171717]/60 backdrop-blur-[25px] rounded-[14px] p-1.5">
+        <span class="text-sm tracking-[-0.15px] text-[#D4D4D4]">Security</span>
+        <div class="relative rounded-[14px] bg-[#171717]/60 p-1.5 backdrop-blur-[25px]">
           <span
-            class="absolute left-0 top-0 z-0 size-full opacity-5 bg-radial from-white to-white/0"
+            class="absolute top-0 left-0 z-0 size-full bg-radial from-white to-white/0 opacity-5"
           >
           </span>
           <div class="relative z-10 flex flex-col">
             <div class="flex items-center justify-between p-4">
-              <div class="flex gap-3 items-center">
+              <div class="flex items-center gap-3">
                 <KeyIcon class="size-5 text-[#9F9FA9]" />
-                <span class="font-light leading-6 tracking-[-0.31px]">Change Password</span>
+                <span class="leading-6 font-light tracking-[-0.31px]">Change Password</span>
               </div>
 
               <ChevronRightIcon class="size-4 text-[#52525C]" />
             </div>
 
             <div class="flex items-center justify-between p-4">
-              <div class="flex gap-3 items-center">
+              <div class="flex items-center gap-3">
                 <ShieldInactiveIcon class="size-5 text-[#9F9FA9]" />
-                <span class="font-light leading-6 tracking-[-0.31px]"
+                <span class="leading-6 font-light tracking-[-0.31px]"
                   >Two-Factor Authentication</span
                 >
               </div>
@@ -151,7 +151,7 @@
       </div>
     </div>
     <button
-      class="w-full text-sm tracking-[-0.15px] flex justify-center items-center gap-4 py-2 text-[#FF6467] font-medium"
+      class="flex w-full items-center justify-center gap-4 py-2 text-sm font-medium tracking-[-0.15px] text-[#FF6467]"
       on:click={logout}
     >
       <LogoutIcon class="size-4" />

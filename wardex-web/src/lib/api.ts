@@ -1,14 +1,14 @@
-import { get } from 'svelte/store';
-import { browser } from '$app/environment';
-import { auth } from '$lib/stores/auth';
+import { get } from "svelte/store";
+import { browser } from "$app/environment";
+import { auth } from "$lib/stores/auth";
 
-const API_BASE = 'https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443';
+const API_BASE = "https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const { token } = get(auth);
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(options.headers || {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   };
@@ -17,8 +17,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (res.status === 401 && browser) {
     auth.logout();
-    if (typeof window !== 'undefined') {
-      window.location.href = '/auth';
+    if (typeof window !== "undefined") {
+      window.location.href = "/auth";
     }
   }
 
@@ -39,5 +39,5 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: 'POST', body: JSON.stringify(body) })
+    request<T>(path, { method: "POST", body: JSON.stringify(body) })
 };

@@ -1,17 +1,17 @@
-import tailwindcss from '@tailwindcss/vite';
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import tailwindcss from "@tailwindcss/vite";
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 5173
   },
   preview: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 4173,
     strictPort: true,
-    allowedHosts: ['wardex-vm.switzerlandnorth.cloudapp.azure.com']
+    allowedHosts: ["wardex-vm.switzerlandnorth.cloudapp.azure.com"]
   }
 });

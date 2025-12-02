@@ -1,7 +1,7 @@
-import { writable } from 'svelte/store';
-import { browser } from '$app/environment';
+import { writable } from "svelte/store";
+import { browser } from "$app/environment";
 
-export const STORAGE_KEY = 'wardex-auth';
+export const STORAGE_KEY = "wardex-auth";
 
 export type AuthUser = {
   email: string;
