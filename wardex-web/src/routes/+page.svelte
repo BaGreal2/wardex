@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { api } from "$lib/api";
+  import { api, API_BASE } from "$lib/api";
   import { cn } from "$lib/utils/cn";
   import RefreshIcon from "$lib/icons/RefreshIcon.svelte";
   import PlusIcon from "$lib/icons/PlusIcon.svelte";
@@ -11,6 +11,7 @@
   import BatteryFullIcon from "$lib/icons/BatteryFullIcon.svelte";
   import WifiIcon from "$lib/icons/WifiIcon.svelte";
   import { lastSeen } from "$lib/utils/lastSeen";
+  import { ensureNotificationPermission, showDeviceUpdatedNotification } from "$lib/notifications";
 
   type DeviceSummary = {
     id: string;
@@ -22,11 +23,14 @@
     lastBattery: number | null;
     lastSeenAt: string | null;
     isOnline: boolean | null;
+    alarmEnabled: boolean | null;
   };
 
   let devices: DeviceSummary[] = $state([]);
   let loading = $state(true);
   let error: string | null = $state(null);
+
+  let ws: WebSocket | null = null;
 
   const loadDevices = async () => {
     loading = true;
@@ -48,7 +52,44 @@
     goto("/devices/new");
   };
 
-  onMount(loadDevices);
+  onMount(() => {
+    loadDevices();
+    ensureNotificationPermission().catch((e) => console.error(e));
+
+    const api = new URL(API_BASE);
+    const wsProtocol = api.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${wsProtocol}//${api.host}/ws/devices`;
+
+    ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "device-updated") {
+          const updatedId: string = data.deviceId;
+          const current = devices.find((d) => d.id === updatedId);
+
+          showDeviceUpdatedNotification({
+            id: updatedId,
+            name: current?.name,
+            lastAlarmState: current?.lastAlarmState
+          });
+          loadDevices();
+        }
+      } catch (err) {
+        console.error("WS message parse error", err);
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WS error", err);
+    };
+  });
+
+  onDestroy(() => {
+    ws?.close();
+    ws = null;
+  });
 
   const anyHasAlarm = $derived(devices.some((d) => d.lastAlarmState === "alarm"));
 
@@ -174,6 +215,8 @@
                   >
                     {#if d.lastAlarmState === "alarm"}
                       ALARM
+                    {:else if d.alarmEnabled}
+                      ARMED
                     {:else}
                       {d.isOnline === true ? "IDLE" : "OFFLINE"}
                     {/if}

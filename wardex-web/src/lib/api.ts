@@ -3,7 +3,7 @@ import { browser } from "$app/environment";
 import { auth } from "$lib/stores/auth";
 import { goto } from "$app/navigation";
 
-const API_BASE = "https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443";
+export const API_BASE = "https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const { token } = get(auth);

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { page } from "$app/state";
-  import { api } from "$lib/api";
+  import { api, API_BASE } from "$lib/api";
   import { cn } from "$lib/utils/cn";
   import ArrowLeft from "$lib/icons/ArrowLeft.svelte";
   import HomeIcon from "$lib/icons/HomeIcon.svelte";
@@ -20,6 +20,7 @@
   import AlarmFillIcon from "$lib/icons/AlarmFillIcon.svelte";
   import DoorIcon from "$lib/icons/DoorIcon.svelte";
   import { goto } from "$app/navigation";
+  import { showDeviceUpdatedNotification } from "$lib/notifications";
 
   const deviceId = $derived(page.params.id);
 
@@ -37,6 +38,7 @@
     createdAt: string;
     lastAlarmState?: string | null;
     deviceKey: string | null;
+    alarmEnabled: boolean | null;
   };
 
   type DoorEvent = {
@@ -64,6 +66,8 @@
   const allEvents: AllEvent[] = $derived(
     [...events, ...alarmEvents].sort((a, b) => b.ts.localeCompare(a.ts))
   );
+
+  let ws: WebSocket | null = null;
 
   const loadAll = async () => {
     loading = true;
@@ -103,14 +107,14 @@
   const toggleAlarm = async () => {
     if (!device || !deviceId) return;
     try {
-      const action = device.lastAlarmState === "alarm" ? "off" : "on";
+      const nextEnabled = !Boolean(device.alarmEnabled);
 
-      const res = await api.post<{
-        ok: boolean;
-        alarmState: "alarm" | "idle";
-      }>(`/api/devices/${deviceId}/alarm`, { action });
+      await api.post<{ ok: boolean }>(`/api/devices/${deviceId}/alarm`, {
+        action: nextEnabled ? "on" : "off"
+      });
 
-      device = { ...device, lastAlarmState: res.alarmState };
+      device = { ...device, alarmEnabled: nextEnabled };
+
       alarmEvents = await api.get<AlarmEvent[]>(`/api/devices/${deviceId}/alarm-events`);
     } catch (e) {
       console.error(e);
@@ -128,7 +132,42 @@
 
   const email = $derived($auth.user?.email ?? null);
 
-  onMount(loadAll);
+  onMount(() => {
+    loadAll();
+
+    const api = new URL(API_BASE);
+    const wsProtocol = api.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${wsProtocol}//${api.host}/ws/devices`;
+
+    ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "device-updated" && data.deviceId === deviceId) {
+          const updatedId: string = data.deviceId;
+
+          showDeviceUpdatedNotification({
+            id: updatedId,
+            name: device?.name,
+            lastAlarmState: device?.lastAlarmState
+          });
+          loadAll();
+        }
+      } catch (err) {
+        console.error("WS message parse error", err);
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WS error", err);
+    };
+  });
+
+  onDestroy(() => {
+    ws?.close();
+    ws = null;
+  });
 </script>
 
 {#if device?.lastAlarmState === "alarm"}
@@ -201,6 +240,8 @@
               >
                 {#if device.lastAlarmState === "alarm"}
                   ALARM
+                {:else if device.alarmEnabled}
+                  ARMED
                 {:else}
                   {device.isOnline === true ? "IDLE" : "OFFLINE"}
                 {/if}
@@ -325,14 +366,15 @@
                   class={cn(
                     "absolute top-0 left-0 z-0 size-full bg-radial from-white to-white/0 opacity-10"
                   )}
-                >
-                </span>
+                ></span>
                 <div class="relative z-10 flex items-center justify-between">
                   <div class="flex items-center gap-2.5">
                     <BellIcon class="size-4 text-white" />
                     <span class="text-sm leading-5 tracking-[-0.15px] text-white">
                       {#if device.lastAlarmState === "alarm"}
                         Turn Off Alarm
+                      {:else if device.alarmEnabled}
+                        Disable Alarm
                       {:else}
                         Enable Alarm
                       {/if}
@@ -491,56 +533,72 @@
       {#if tab === "actions"}
         <div class="flex w-full flex-col gap-3">
           {#each allEvents as event}
-            {#if event.eventType}
-              {#if event.eventType === "alarm_on"}
-                <div
-                  class="relative flex w-full justify-between rounded-3xl border border-[#FF6467] bg-[#FB2C36]/20 p-4 backdrop-blur-[25px]"
-                >
-                  <span
-                    class={cn(
-                      "absolute top-0 left-0 z-0 size-full bg-radial from-white to-white/0 opacity-10"
-                    )}
-                  >
-                  </span>
-                  <div class=" relative z-10 flex items-center gap-3">
-                    <div
-                      class="flex size-10 items-center justify-center rounded-full bg-[#FB2C36]/20"
-                    >
-                      <AlarmFillIcon class="size-5 text-[#FF6467]" />
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="leading-5 font-medium tracking-[-0.31px]">Alarm</span>
-                      <span class="text-xs leading-4 font-light text-white/45">
-                        System • {format(event.ts, "MMM dd, yyy")}
-                      </span>
-                    </div>
-                  </div>
+            {#if event.eventType === "alarm_triggered"}
+              <!-- TRIGGERED card -->
+              <div
+                class="relative flex w-full justify-between rounded-3xl border border-[#FF6467] bg-[#FB2C36]/20 p-4 backdrop-blur-[25px]"
+              >
+                <span
+                  class={cn(
+                    "absolute top-0 left-0 z-0 size-full bg-radial from-white to-white/0 opacity-10"
+                  )}
+                ></span>
+                <div class="relative z-10 flex items-center gap-3">
                   <div
-                    class="relative z-10 flex h-11 w-[104px] items-center gap-3 rounded-xl border border-white/20 bg-white/10 px-4"
+                    class="flex size-10 items-center justify-center rounded-full bg-[#FB2C36]/20"
                   >
-                    <div class="size-1.5 shrink-0 rounded-full bg-white"></div>
-                    <span class="text-[10px] leading-3 font-medium">VIBRATION DETECTED</span>
+                    <AlarmFillIcon class="size-5 text-[#FF6467]" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="leading-5 font-medium tracking-[-0.31px]">Alarm</span>
+                    <span class="text-xs leading-4 font-light text-white/45">
+                      System • {format(event.ts, "MMM dd, yyy")}
+                    </span>
                   </div>
                 </div>
-              {:else}
                 <div
-                  class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
+                  class="relative z-10 flex h-11 w-[104px] items-center gap-3 rounded-xl border border-white/20 bg-white/10 px-4"
                 >
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="flex size-10 items-center justify-center rounded-full bg-[#51A2FF]/25"
-                    >
-                      <AlarmFillIcon class="size-5 text-[#51A2FF]" />
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="leading-5 font-medium tracking-[-0.31px]">Alarm Disabled</span>
-                      <span class="text-xs leading-4 font-light text-white/45">
-                        System • {format(event.ts, "MMM dd, yyy")}
-                      </span>
-                    </div>
+                  <div class="size-1.5 shrink-0 rounded-full bg-white" />
+                  <span class="text-[10px] leading-3 font-medium">VIBRATION DETECTED</span>
+                </div>
+              </div>
+            {:else if event.eventType === "alarm_armed"}
+              <div
+                class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex size-10 items-center justify-center rounded-full bg-[#51A2FF]/25"
+                  >
+                    <AlarmFillIcon class="size-5 text-[#51A2FF]" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="leading-5 font-medium tracking-[-0.31px]">Alarm Armed</span>
+                    <span class="text-xs leading-4 font-light text-white/45">
+                      System • {format(event.ts, "MMM dd, yyy")}
+                    </span>
                   </div>
                 </div>
-              {/if}
+              </div>
+            {:else if event.eventType === "alarm_disarmed"}
+              <div
+                class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex size-10 items-center justify-center rounded-full bg-[#51A2FF]/25"
+                  >
+                    <AlarmFillIcon class="size-5 text-[#51A2FF]" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="leading-5 font-medium tracking-[-0.31px]">Alarm Disabled</span>
+                    <span class="text-xs leading-4 font-light text-white/45">
+                      System • {format(event.ts, "MMM dd, yyy")}
+                    </span>
+                  </div>
+                </div>
+              </div>
             {:else}
               <div
                 class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"

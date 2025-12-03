@@ -127,7 +127,7 @@
       <div class="flex w-full flex-col gap-3">
         {#each events as event}
           {#if event.kind === "alarm"}
-            {#if event.alarmEventType === "alarm_on"}
+            {#if event.alarmEventType === "alarm_armed"}
               <div
                 class="relative flex w-full justify-between rounded-3xl border border-[#FF6467] bg-[#FB2C36]/20 p-4 backdrop-blur-[25px]"
               >
