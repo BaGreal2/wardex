@@ -42,7 +42,7 @@
       const ev = await api.get<UserEvent[]>(`/api/events`);
       allEvents = ev;
     } catch (e) {
-      error = e instanceof Error ? e.message : "Failed to load device";
+      error = e instanceof Error ? e.message : "Failed to load events";
       allEvents = [];
     } finally {
       loading = false;
@@ -127,7 +127,7 @@
       <div class="flex w-full flex-col gap-3">
         {#each events as event}
           {#if event.kind === "alarm"}
-            {#if event.alarmEventType === "alarm_armed"}
+            {#if event.alarmEventType === "alarm_triggered"}
               <div
                 class="relative flex w-full justify-between rounded-3xl border border-[#FF6467] bg-[#FB2C36]/20 p-4 backdrop-blur-[25px]"
               >
@@ -137,7 +137,7 @@
                   )}
                 >
                 </span>
-                <div class=" relative z-10 flex items-center gap-3">
+                <div class="relative z-10 flex items-center gap-3">
                   <div
                     class="flex size-10 items-center justify-center rounded-full bg-[#FB2C36]/20"
                   >
@@ -157,7 +157,27 @@
                   <span class="text-[10px] leading-3 font-medium">VIBRATION DETECTED</span>
                 </div>
               </div>
-            {:else}
+            {:else if event.alarmEventType === "alarm_armed"}
+              <!-- ARMED card -->
+              <div
+                class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex size-10 items-center justify-center rounded-full bg-[#51A2FF]/25"
+                  >
+                    <AlarmFillIcon class="size-5 text-[#51A2FF]" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="leading-5 font-medium tracking-[-0.31px]">Alarm Armed</span>
+                    <span class="text-xs leading-4 font-light text-white/45">
+                      System • {format(event.ts, "MMM dd, yyy")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            {:else if event.alarmEventType === "alarm_disarmed"}
+              <!-- DISARMED card -->
               <div
                 class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
               >
@@ -175,8 +195,28 @@
                   </div>
                 </div>
               </div>
+            {:else}
+              <!-- Fallback for unknown alarm event types -->
+              <div
+                class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex size-10 items-center justify-center rounded-full bg-[#51A2FF]/25"
+                  >
+                    <AlarmFillIcon class="size-5 text-[#51A2FF]" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="leading-5 font-medium tracking-[-0.31px]"> Alarm Event </span>
+                    <span class="text-xs leading-4 font-light text-white/45">
+                      System • {format(event.ts, "MMM dd, yyy")}
+                    </span>
+                  </div>
+                </div>
+              </div>
             {/if}
           {:else}
+            <!-- Door events -->
             <div
               class="relative flex w-full justify-between rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-[25px]"
             >
