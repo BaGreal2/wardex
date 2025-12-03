@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 
 import { alarmEvents, devices } from "@/db/schema";
 import { sendAlarmCommandToDevice } from "@/iot/iothub";
-import type { JwtUser } from "@/types/user";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.addHook("onRequest", fastify.authenticate);
@@ -39,11 +38,11 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     async (request, reply) => {
       const { deviceId } = request.params;
       const { action } = request.body;
-      const user = request.user as JwtUser;
+      const user = request.user;
 
       const now = new Date();
       const eventType = action === "on" ? "alarm_on" : "alarm_off";
-      const alarmState = action === "on" ? "alarm" : "idle";
+      // const alarmState = action === "on" ? "alarm" : "idle";
 
       await fastify.db.insert(alarmEvents).values({
         deviceId,
@@ -55,7 +54,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       await fastify.db
         .update(devices)
         .set({
-          lastAlarmState: alarmState,
+          // lastAlarmState: alarmState,
           lastSeenAt: now,
           isOnline: true,
         })
@@ -77,7 +76,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       return reply.send({
         ok: true,
-        alarmState,
+        // alarmState,
       });
     },
   );
