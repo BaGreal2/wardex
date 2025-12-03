@@ -33,7 +33,6 @@
     error = null;
     try {
       devices = await api.get<DeviceSummary[]>("/api/devices");
-      console.log(devices);
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to load devices";
     } finally {

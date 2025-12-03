@@ -41,7 +41,6 @@
     try {
       const ev = await api.get<UserEvent[]>(`/api/events`);
       allEvents = ev;
-      console.log("ev", ev);
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to load device";
       allEvents = [];
