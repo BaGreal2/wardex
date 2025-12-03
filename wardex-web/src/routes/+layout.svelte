@@ -57,7 +57,7 @@
   </div>
 
   {#if !isAuthRoute}
-    <nav class="fixed inset-x-0 bottom-0 z-40 px-4 py-2.5">
+    <nav class="fixed inset-x-0 bottom-10 z-40 px-4 py-2.5">
       <div
         class="mx-auto h-15 w-full max-w-md rounded-full border border-[#27272A]/50 bg-[#18181B]/90 p-1.5 shadow-xl backdrop-blur-[25px]"
       >
