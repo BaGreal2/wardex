@@ -8,8 +8,10 @@ const API_BASE = "https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443";
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const { token } = get(auth);
 
+  const hasBody = options.body !== undefined && options.body !== null;
+
   const headers: HeadersInit = {
-    "Content-Type": "application/json",
+    ...(hasBody ? { "Content-Type": "application/json" } : {}),
     ...(options.headers || {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   };
@@ -18,9 +20,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (res.status === 401 && browser) {
     auth.logout();
-    if (typeof window !== "undefined") {
-      goto("/auth");
-    }
+    if (typeof window !== "undefined") goto("/auth");
   }
 
   if (!res.ok) {
@@ -28,10 +28,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     try {
       const body = await res.json();
       if ((body as any).message) msg = (body as any).message;
-    } catch {
-      // ignore
-    }
+    } catch { }
     throw new Error(msg);
+  }
+
+  if (res.status === 204) {
+    return undefined as T;
   }
 
   return res.json() as Promise<T>;

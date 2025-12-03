@@ -49,8 +49,17 @@
     }
   };
 
+  let dateInput: HTMLInputElement | null = null;
+
   const togglePicker = () => {
-    showDatepicker = !showDatepicker;
+    if (!dateInput) return;
+
+    if ("showPicker" in dateInput) {
+      (dateInput as any).showPicker();
+    } else {
+      (dateInput as any).focus();
+      (dateInput as any).click();
+    }
   };
 
   const handleDateChange = (event: Event) => {
@@ -69,7 +78,7 @@
   alt=""
 />
 
-<div class="relative z-20 flex min-h-dvh flex-col justify-between gap-7.5 px-6 pt-10 pb-30">
+<div class="relative z-20 flex min-h-dvh flex-col justify-between gap-7.5 px-6 pt-10 pb-34">
   <header class="flex items-center justify-between px-4">
     <div>
       <h1 class="text-2xl leading-8 font-semibold">Activity Log</h1>
@@ -82,16 +91,15 @@
           <ChevronDownIcon class="size-5 text-white/45" />
         </button>
 
-        {#if showDatepicker}
-          <div class="absolute top-full left-0 z-20 mt-1">
-            <input
-              type="date"
-              class="rounded border border-[#27272A] bg-[#18181B] px-2 py-1 text-sm text-white/80"
-              value={format(selectedDate, "yyyy-MM-dd")}
-              onchange={handleDateChange}
-            />
-          </div>
-        {/if}
+        <div class="absolute top-full left-0 z-20 mt-1">
+          <input
+            bind:this={dateInput}
+            type="date"
+            class="sr-only"
+            value={format(selectedDate, "yyyy-MM-dd")}
+            onchange={handleDateChange}
+          />
+        </div>
       </div>
     </div>
 

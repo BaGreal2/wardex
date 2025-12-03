@@ -51,6 +51,11 @@
   onMount(loadDevices);
 
   const anyHasAlarm = $derived(devices.some((d) => d.lastAlarmState === "alarm"));
+
+  const sortedDevices = $derived([
+    ...devices.filter((d) => d.lastAlarmState === "alarm"),
+    ...devices.filter((d) => d.lastAlarmState !== "alarm")
+  ]);
 </script>
 
 {#if anyHasAlarm}
@@ -67,7 +72,7 @@
   />
 {/if}
 
-<div class="relative z-20 flex min-h-dvh flex-col justify-between gap-7.5 px-6 pt-10 pb-30">
+<div class="relative z-20 flex min-h-dvh flex-col justify-between gap-7.5 px-6 pt-10 pb-34">
   <header class="flex items-center justify-between px-4">
     <div>
       <h1 class="text-2xl leading-8 font-semibold">My Devices</h1>
@@ -112,7 +117,7 @@
       <div class="mx-auto mt-10 text-lg text-white">No devices yet</div>
     {:else}
       <div class="flex flex-col gap-3">
-        {#each devices as d}
+        {#each sortedDevices as d}
           <button
             class={cn(
               "relative h-25 w-full rounded-3xl border-[0.6px] border-[#27272A]/50 p-4 text-left backdrop-blur-[25px]",

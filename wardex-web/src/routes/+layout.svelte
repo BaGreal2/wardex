@@ -17,7 +17,8 @@
   const webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : "");
 
   const pathname = $derived(page.url?.pathname ?? "/");
-  const isAuthRoute = $derived(pathname.startsWith("/auth"));
+  const noNavRoutes = ["/auth", "/devices/new"];
+  const isNoNavRoute = $derived(noNavRoutes.some((route) => pathname.startsWith(route)));
 
   const isDevicesRoute = $derived(pathname === "/" || pathname.startsWith("/devices"));
   const isActivityRoute = $derived(pathname.startsWith("/activity"));
@@ -62,7 +63,7 @@
     {/key}
   </div>
 
-  {#if !isAuthRoute}
+  {#if !isNoNavRoute}
     <nav class="fixed inset-x-0 bottom-10 z-40 px-4 py-2.5">
       <div
         class="mx-auto h-15 w-full max-w-md rounded-full border border-[#27272A]/50 bg-[#18181B]/90 p-1.5 shadow-xl backdrop-blur-[25px]"

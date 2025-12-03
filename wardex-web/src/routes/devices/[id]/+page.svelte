@@ -93,7 +93,8 @@
     if (!deviceId) return;
 
     try {
-      await api.delete(`/devices/${deviceId}`);
+      await api.delete(`/api/devices/${deviceId}`);
+      goto("/");
     } catch (e) {
       console.error(e);
     }
@@ -144,7 +145,7 @@
   />
 {/if}
 
-<div class="relative z-20 flex min-h-dvh flex-col gap-[11px] px-6 pt-6 pb-30">
+<div class="relative z-20 flex min-h-dvh flex-col gap-[11px] px-6 pt-6 pb-34">
   {#if loading}
     <div class="mx-auto mt-10 text-lg text-white">Loading device...</div>
   {:else if error}
