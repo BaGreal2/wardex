@@ -32,15 +32,35 @@
 
   let ws: WebSocket | null = null;
 
-  const loadDevices = async () => {
-    loading = true;
-    error = null;
+  type LoadDevicesOptions = {
+    background?: boolean;
+  };
+
+  const loadDevices = async ({ background = false }: LoadDevicesOptions = {}) => {
+    if (!background) {
+      loading = true;
+      error = null;
+    }
+
     try {
-      devices = await api.get<DeviceSummary[]>("/api/devices");
+      const res = await api.get<DeviceSummary[]>("/api/devices");
+      devices = res;
+
+      if (!background) {
+        error = null;
+      }
     } catch (e) {
-      error = e instanceof Error ? e.message : "Failed to load devices";
+      const msg = e instanceof Error ? e.message : "Failed to load devices";
+
+      if (!background) {
+        error = msg;
+      } else {
+        console.error("Background devices refresh failed", e);
+      }
     } finally {
-      loading = false;
+      if (!background) {
+        loading = false;
+      }
     }
   };
 
@@ -56,9 +76,9 @@
     loadDevices();
     ensureNotificationPermission().catch((e) => console.error(e));
 
-    const api = new URL(API_BASE);
-    const wsProtocol = api.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${wsProtocol}//${api.host}/ws/devices`;
+    const apiUrl = new URL(API_BASE);
+    const wsProtocol = apiUrl.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${wsProtocol}//${apiUrl.host}/ws/devices`;
 
     ws = new WebSocket(wsUrl);
 
@@ -67,9 +87,10 @@
         const data = JSON.parse(event.data);
         if (data.type === "device-updated") {
           const updatedId: string = data.deviceId;
+
           const before = devices.find((d) => d.id === updatedId);
 
-          await loadDevices();
+          await loadDevices({ background: true });
 
           const after = devices.find((d) => d.id === updatedId);
 

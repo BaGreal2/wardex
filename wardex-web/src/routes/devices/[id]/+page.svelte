@@ -69,9 +69,15 @@
 
   let ws: WebSocket | null = null;
 
-  const loadAll = async () => {
-    loading = true;
-    error = null;
+  type LoadAllOptions = {
+    background?: boolean;
+  };
+
+  const loadAll = async ({ background = false }: LoadAllOptions = {}) => {
+    if (!background) {
+      loading = true;
+      error = null;
+    }
 
     try {
       const [d, ev, aev] = await Promise.all([
@@ -83,13 +89,25 @@
       device = d;
       events = ev;
       alarmEvents = aev;
+
+      if (!background) {
+        error = null;
+      }
     } catch (e) {
-      error = e instanceof Error ? e.message : "Failed to load device";
-      device = null;
-      events = [];
-      alarmEvents = [];
+      const msg = e instanceof Error ? e.message : "Failed to load device";
+
+      if (!background) {
+        error = msg;
+        device = null;
+        events = [];
+        alarmEvents = [];
+      } else {
+        console.error("Background device refresh failed", e);
+      }
     } finally {
-      loading = false;
+      if (!background) {
+        loading = false;
+      }
     }
   };
 
@@ -135,9 +153,9 @@
   onMount(() => {
     loadAll();
 
-    const api = new URL(API_BASE);
-    const wsProtocol = api.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${wsProtocol}//${api.host}/ws/devices`;
+    const apiUrl = new URL(API_BASE);
+    const wsProtocol = apiUrl.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${wsProtocol}//${apiUrl.host}/ws/devices`;
 
     ws = new WebSocket(wsUrl);
 
@@ -149,7 +167,7 @@
 
           const before = device;
 
-          await loadAll();
+          await loadAll({ background: true });
 
           const after = device;
 
@@ -159,7 +177,7 @@
           if (!beforeAlarm && afterAlarm) {
             showDeviceUpdatedNotification({
               id: updatedId,
-              name: after?.name,
+              name: after?.name ?? undefined,
               lastAlarmState: after?.lastAlarmState
             });
           }
