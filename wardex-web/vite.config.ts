@@ -9,6 +9,11 @@ export default defineConfig({
     sveltekit(),
     SvelteKitPWA({
       registerType: "autoUpdate",
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        globIgnores: ["**/splash-*.png"]
+      },
       manifest: {
         name: "WARDEX",
         short_name: "WARDEX",
