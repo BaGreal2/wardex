@@ -91,6 +91,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         isOnline: d.isOnline ?? null,
         createdAt: d.createdAt.toISOString(),
         deviceKey: d.deviceKey ?? null,
+        alarmEnabled: d.alarmEnabled ?? null,
       });
     },
   );

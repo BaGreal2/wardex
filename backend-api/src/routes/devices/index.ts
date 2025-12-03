@@ -18,6 +18,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     lastBattery: Type.Union([Type.Number(), Type.Null()]),
     lastSeenAt: Type.Union([Type.String(), Type.Null()]),
     isOnline: Type.Union([Type.Boolean(), Type.Null()]),
+    alarmEnabled: Type.Union([Type.Boolean(), Type.Null()]),
   });
 
   const Body = Type.Object({
