@@ -39,6 +39,9 @@ const unsigned long HEARTBEAT_INTERVAL_MS = 600000UL;
 unsigned long lastDebounce = 0;
 const unsigned long DEBOUNCE_MS = 80;
 
+// NEW: send state once after startup/first connection
+bool startupPayloadSent = false;
+
 String getTelemetryTopic() { return "devices/" + String(deviceId) + "/messages/events/"; }
 String getC2DTopic() { return "devices/" + String(deviceId) + "/messages/devicebound/#"; }
 
@@ -97,7 +100,7 @@ void publishPayload(bool isHeartbeat = false) {
   payload += (alarmEnabled ? "true" : "false");
   payload += "}";
   
-  if(client.publish(getTelemetryTopic().c_str(), payload.c_str())) {
+  if (client.publish(getTelemetryTopic().c_str(), payload.c_str())) {
      Serial.println("PUB: " + payload);
   } else {
      Serial.println("PUB FAILED");
@@ -110,9 +113,19 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.println("RX [" + String(topic) + "]: " + msg);
 
   if (msg.indexOf("alarm") >= 0) {
-    if (msg.indexOf("true") >= 0 || msg.indexOf("1") >= 0 || msg.indexOf("on") >= 0) alarmEnabled = true;
-    else alarmEnabled = false;
+    bool prevAlarm = alarmEnabled; // track previous state
+
+    if (msg.indexOf("true") >= 0 || msg.indexOf("1") >= 0 || msg.indexOf("on") >= 0) 
+      alarmEnabled = true;
+    else 
+      alarmEnabled = false;
+
     Serial.println("Alarm state set to: " + String(alarmEnabled ? "ON" : "OFF"));
+
+    // NEW: send state when alarm state changed
+    if (alarmEnabled != prevAlarm) {
+      publishPayload(false);
+    }
   }
 }
 
@@ -197,6 +210,13 @@ void loop() {
   client.loop();
 
   unsigned long now = millis();
+
+  // NEW: send initial state once after startup / first connection
+  if (!startupPayloadSent && client.connected()) {
+    publishPayload(false);
+    startupPayloadSent = true;
+  }
+
   int light = readSmoothedLight();
 
   bool currentBroken = (light < thresholdVal);
