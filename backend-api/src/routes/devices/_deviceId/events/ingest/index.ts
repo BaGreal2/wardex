@@ -12,7 +12,6 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const Body = Type.Object({
     door: Type.Union([Type.Literal("open"), Type.Literal("close")]),
     battery: Type.Number(),
-    alarmEnabled: Type.Optional(Type.Boolean()),
     ts: Type.Number(),
   });
 
@@ -37,25 +36,32 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     async (request) => {
       const { deviceId } = request.params;
-      const { door, battery, alarmEnabled, ts } = request.body;
+      const { door, battery, ts } = request.body;
 
       const tsDate = new Date(ts * 1000);
 
-      type NewDoorEvent = typeof doorEvents.$inferInsert;
+      const [deviceRow] = await fastify.db
+        .select({
+          alarmEnabled: devices.alarmEnabled,
+          lastAlarmState: devices.lastAlarmState,
+        })
+        .from(devices)
+        .where(eq(devices.id, deviceId))
+        .limit(1);
 
-      const newEvent: NewDoorEvent = {
+      const armed = !!deviceRow?.alarmEnabled;
+      const wasTriggered = deviceRow?.lastAlarmState === "alarm";
+      const alarmTriggered = armed && door === "open";
+
+      await fastify.db.insert(doorEvents).values({
         deviceId,
         doorState: door,
         battery,
-        alarmEnabled: alarmEnabled ?? null,
+        alarmEnabled: armed,
         ts: tsDate,
-      };
+      });
 
-      await fastify.db.insert(doorEvents).values(newEvent);
-
-      const alarmTriggered = alarmEnabled && door === "open";
-
-      if (alarmTriggered) {
+      if (alarmTriggered && !wasTriggered) {
         await fastify.db.insert(alarmEvents).values({
           deviceId,
           eventType: "alarm_triggered",
@@ -64,17 +70,18 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         });
       }
 
-      await fastify.db
-        .update(devices)
-        .set({
-          alarmEnabled,
-          lastDoorState: door,
-          lastAlarmState: alarmTriggered ? "alarm" : "idle",
-          lastBattery: battery,
-          lastSeenAt: tsDate,
-          isOnline: true,
-        })
-        .where(eq(devices.id, deviceId));
+      const update: Partial<typeof devices.$inferInsert> = {
+        lastDoorState: door,
+        lastBattery: battery,
+        lastSeenAt: tsDate,
+        isOnline: true,
+      };
+
+      if (alarmTriggered) {
+        update.lastAlarmState = "alarm";
+      }
+
+      await fastify.db.update(devices).set(update).where(eq(devices.id, deviceId));
 
       fastify.notifyDeviceUpdated(deviceId);
 
