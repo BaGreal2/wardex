@@ -10,13 +10,7 @@
   import BatteryMidIcon from "$lib/icons/BatteryMidIcon.svelte";
   import BatteryFullIcon from "$lib/icons/BatteryFullIcon.svelte";
   import WifiIcon from "$lib/icons/WifiIcon.svelte";
-  import { formatDistanceToNow } from "date-fns";
-
-  const lastSeen = (dateStr: string) => {
-    const text = formatDistanceToNow(new Date(dateStr), { addSuffix: true });
-    if (text.includes("less than a minute")) return "Just now";
-    return text;
-  };
+  import { lastSeen } from "$lib/utils/lastSeen";
 
   type DeviceSummary = {
     id: string;
