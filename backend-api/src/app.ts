@@ -35,6 +35,8 @@ export function buildApp(https?: HttpsServerOptions) {
       }
     },
     credentials: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   });
 
   app.register(AutoLoad, {
