@@ -64,6 +64,8 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         })
         .where(eq(devices.id, deviceId));
 
+      fastify.notifyDeviceUpdated(deviceId);
+
       return { ok: true };
     },
   );

@@ -16,6 +16,7 @@
     "@sinclair/typebox": "^0.34.41",
     "@types/bun": "latest",
     "@types/node": "^24.10.1",
+    "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.7",
     "prettier": "^3.3.3",
     "tsx": "^4.20.6"
@@ -31,6 +32,7 @@
     "@fastify/swagger": "^9.6.1",
     "@fastify/swagger-ui": "^5.2.3",
     "@fastify/type-provider-typebox": "^6.1.0",
+    "@fastify/websocket": "^11.2.0",
     "@types/pg": "^8.15.6",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
