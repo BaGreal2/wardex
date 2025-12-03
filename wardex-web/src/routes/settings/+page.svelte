@@ -152,7 +152,7 @@
     </div>
     <button
       class="flex w-full items-center justify-center gap-4 py-2 text-sm font-medium tracking-[-0.15px] text-[#FF6467]"
-      on:click={logout}
+      onclick={logout}
     >
       <LogoutIcon class="size-4" />
       Sign Out
