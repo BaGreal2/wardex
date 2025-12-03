@@ -19,6 +19,7 @@
   import { auth } from "$lib/stores/auth";
   import AlarmFillIcon from "$lib/icons/AlarmFillIcon.svelte";
   import DoorIcon from "$lib/icons/DoorIcon.svelte";
+  import { goto } from "$app/navigation";
 
   const deviceId = $derived(page.params.id);
 
@@ -156,7 +157,14 @@
     <header class="flex flex-col items-center gap-9">
       <div class="flex w-full flex-col items-center gap-0.5">
         <div class="w-full">
-          <a href="/" class="flex size-10 p-2">
+          <a
+            href="/"
+            onclick={(e: any) => {
+              e.preventDefault();
+              goto("/");
+            }}
+            class="flex size-10 p-2"
+          >
             <ArrowLeft class="size-6 text-[#A1A1A1]" />
           </a>
         </div>

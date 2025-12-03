@@ -1,6 +1,7 @@
 import { get } from "svelte/store";
 import { browser } from "$app/environment";
 import { auth } from "$lib/stores/auth";
+import { goto } from "$app/navigation";
 
 const API_BASE = "https://wardex-vm.switzerlandnorth.cloudapp.azure.com:3443";
 
@@ -18,7 +19,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (res.status === 401 && browser) {
     auth.logout();
     if (typeof window !== "undefined") {
-      window.location.href = "/auth";
+      goto("/auth");
     }
   }
 

@@ -44,14 +44,41 @@
 
   <div class="flex w-full flex-col items-center gap-6.5">
     <div class="flex w-full flex-col gap-2.5">
-      <LinkButton href="/auth/register" class="h-15 w-full">Create Account</LinkButton>
-      <LinkButton href="/auth/login" variant="secondary" class="h-15 w-full">Log In</LinkButton>
+      <LinkButton
+        href="/auth/register"
+        onclick={(e: any) => {
+          e.preventDefault();
+          goto("/auth/register");
+        }}
+        class="h-15 w-full">Create Account</LinkButton
+      >
+      <LinkButton
+        href="/auth/login"
+        onclick={(e: any) => {
+          e.preventDefault();
+          goto("/auth/login");
+        }}
+        variant="secondary"
+        class="h-15 w-full">Log In</LinkButton
+      >
     </div>
 
     <div class="flex gap-4 text-xs leading-4 text-[#737373]">
-      <a href="/auth">Terms of Service</a>
+      <a
+        href="/auth"
+        onclick={(e) => {
+          e.preventDefault();
+          goto("/auth");
+        }}>Terms of Service</a
+      >
       <span class="flex translate-y-0.5 text-base leading-3 text-[#404040]">•</span>
-      <a href="/auth">Privacy Policy</a>
+      <a
+        href="/auth"
+        onclick={(e) => {
+          e.preventDefault();
+          goto("/auth");
+        }}>Privacy Policy</a
+      >
     </div>
   </div>
 </div>

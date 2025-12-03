@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { fly } from "svelte/transition";
   import { page } from "$app/state";
   import HouseActiveIcon from "$lib/icons/HouseActiveIcon.svelte";
@@ -8,8 +9,8 @@
   import ShieldActiveIcon from "$lib/icons/ShieldActiveIcon.svelte";
   import ShieldInactiveIcon from "$lib/icons/ShieldInactiveIcon.svelte";
   import { cn } from "$lib/utils/cn";
-  import "./layout.css";
   import { cubicInOut } from "svelte/easing";
+  import "./layout.css";
 
   const pathname = $derived(page.url?.pathname ?? "/");
   const isAuthRoute = $derived(pathname.startsWith("/auth"));
@@ -73,6 +74,10 @@
 
           <a
             href="/"
+            onclick={(e) => {
+              e.preventDefault();
+              goto("/");
+            }}
             class={cn(
               "relative z-10 flex h-full flex-1 basis-1/3 items-center justify-center rounded-full text-center text-[10px] tracking-[0.12px] transition-colors duration-200",
               isDevicesRoute ? "text-white" : "text-[#71717B]"
@@ -91,6 +96,10 @@
 
           <a
             href="/activity"
+            onclick={(e) => {
+              e.preventDefault();
+              goto("/activity");
+            }}
             class={cn(
               "relative z-10 flex h-full flex-1 basis-1/3 items-center justify-center rounded-full text-center text-[10px] tracking-[0.12px] transition-colors duration-200",
               isActivityRoute ? "text-white" : "text-[#71717B]"
@@ -109,6 +118,10 @@
 
           <a
             href="/settings"
+            onclick={(e) => {
+              e.preventDefault();
+              goto("/settings");
+            }}
             class={cn(
               "relative z-10 flex h-full flex-1 basis-1/3 items-center justify-center rounded-full text-center text-[10px] tracking-[0.12px] transition-colors duration-200",
               isSettingsRoute ? "text-white" : "text-[#71717B]"

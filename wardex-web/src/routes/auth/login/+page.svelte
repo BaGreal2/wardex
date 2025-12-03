@@ -74,7 +74,14 @@
 
 <div class="relative z-10 flex min-h-dvh flex-col gap-5 px-6 pt-12 pb-8">
   <header class="flex w-full items-start justify-between">
-    <a href="/auth" class="p-2">
+    <a
+      href="/auth"
+      onclick={(e: any) => {
+        e.preventDefault();
+        goto("/auth");
+      }}
+      class="p-2"
+    >
       <ArrowLeft class="size-6 text-[#A1A1A1]" />
     </a>
     <div class="flex flex-col gap-2 text-end">
@@ -111,8 +118,13 @@
         >
           <LockIcon slot="icon" class="size-4 text-[#7B7B7B]" />
         </InputField>
-        <a href="/auth/login" class="text-sm leading-5 font-light text-[#A1A1A1]"
-          >Forgot my password</a
+        <a
+          href="/auth/login"
+          onclick={(e: any) => {
+            e.preventDefault();
+            goto("/auth/login");
+          }}
+          class="text-sm leading-5 font-light text-[#A1A1A1]">Forgot my password</a
         >
       </div>
     </div>
