@@ -88,6 +88,16 @@
     }
   };
 
+  const deleteDevice = async () => {
+    if (!deviceId) return;
+
+    try {
+      await api.delete(`/devices/${deviceId}`);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const toggleAlarm = async () => {
     if (!device || !deviceId) return;
     try {
@@ -277,7 +287,10 @@
           </button>
         </div>
 
-        <button class="flex items-center gap-2.5 text-xs leading-4 text-[#FF6467]">
+        <button
+          class="flex items-center gap-2.5 text-xs leading-4 text-[#FF6467]"
+          onclick={deleteDevice}
+        >
           Delete Device
           <DeleteIcon class="size-3.5" />
         </button>
