@@ -11,6 +11,10 @@
   import { cn } from "$lib/utils/cn";
   import { cubicInOut } from "svelte/easing";
   import "./layout.css";
+  // @ts-ignore
+  import { pwaInfo } from "virtual:pwa-info";
+
+  const webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : "");
 
   const pathname = $derived(page.url?.pathname ?? "/");
   const isAuthRoute = $derived(pathname.startsWith("/auth"));
@@ -38,6 +42,7 @@
 <svelte:head>
   <title>WARDEX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {@html webManifestLink}
 </svelte:head>
 
 <main class="min-h-dvh flex-col">

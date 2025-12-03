@@ -20,8 +20,7 @@ export default defineConfig({
         theme_color: "#0C0C0C",
         background_color: "#0C0C0C",
         display: "standalone",
-        start_url: "/",
-        handle_links: "preferred",
+        start_url: "/auth",
         scope: "/",
         icons: [
           {

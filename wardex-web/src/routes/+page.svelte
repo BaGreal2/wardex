@@ -67,7 +67,7 @@
   />
 {/if}
 
-<div class="relative z-20 flex min-h-dvh flex-col justify-between gap-7.5 px-6 pt-10 pb-24">
+<div class="relative z-20 flex min-h-dvh flex-col justify-between gap-7.5 px-6 pt-10 pb-30">
   <header class="flex items-center justify-between px-4">
     <div>
       <h1 class="text-2xl leading-8 font-semibold">My Devices</h1>

@@ -24,7 +24,7 @@
   alt=""
 />
 
-<div class="relative z-20 flex min-h-dvh flex-col gap-7.5 px-6 pt-10 pb-24">
+<div class="relative z-20 flex min-h-dvh flex-col gap-7.5 px-6 pt-10 pb-30">
   <header class="flex flex-col justify-between px-4">
     <h1 class="text-2xl leading-8 font-semibold">Settings</h1>
     <p class="text-sm leading-5 font-light tracking-[-0.15px] text-white/65">
