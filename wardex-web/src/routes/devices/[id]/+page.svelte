@@ -141,18 +141,28 @@
 
     ws = new WebSocket(wsUrl);
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === "device-updated" && data.deviceId === deviceId) {
           const updatedId: string = data.deviceId;
 
-          showDeviceUpdatedNotification({
-            id: updatedId,
-            name: device?.name,
-            lastAlarmState: device?.lastAlarmState
-          });
-          loadAll();
+          const before = device;
+
+          await loadAll();
+
+          const after = device;
+
+          const beforeAlarm = before?.lastAlarmState === "alarm";
+          const afterAlarm = after?.lastAlarmState === "alarm";
+
+          if (!beforeAlarm && afterAlarm) {
+            showDeviceUpdatedNotification({
+              id: updatedId,
+              name: after?.name,
+              lastAlarmState: after?.lastAlarmState
+            });
+          }
         }
       } catch (err) {
         console.error("WS message parse error", err);

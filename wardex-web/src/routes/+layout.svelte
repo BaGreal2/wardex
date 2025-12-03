@@ -42,7 +42,6 @@
 
 <svelte:head>
   <title>WARDEX</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   {@html webManifestLink}
 </svelte:head>
 
