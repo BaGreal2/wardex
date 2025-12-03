@@ -42,6 +42,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     isOnline: Type.Union([Type.Boolean(), Type.Null()]),
     createdAt: Type.String(),
     deviceKey: Type.Union([Type.String(), Type.Null()]),
+    alarmEnabled: Type.Union([Type.Boolean(), Type.Null()]),
   });
 
   fastify.get(
@@ -68,6 +69,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
           lastBattery: devices.lastBattery,
           lastSeenAt: devices.lastSeenAt,
           isOnline: devices.isOnline,
+          alarmEnabled: devices.alarmEnabled,
         })
         .from(devices)
         .leftJoin(deviceAccess, eq(deviceAccess.deviceId, devices.id))

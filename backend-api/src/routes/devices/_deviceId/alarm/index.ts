@@ -20,7 +20,6 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
   const Response = Type.Object({
     ok: Type.Boolean(),
-    alarmState: Type.Union([Type.Literal("alarm"), Type.Literal("idle")]),
   });
 
   fastify.post<{ Params: ParamsType; Body: BodyType }>(
@@ -41,8 +40,8 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       const user = request.user;
 
       const now = new Date();
-      const eventType = action === "on" ? "alarm_on" : "alarm_off";
-      // const alarmState = action === "on" ? "alarm" : "idle";
+      const enabled = action === "on";
+      const eventType = action === "on" ? "alarm_armed" : "alarm_disarmed";
 
       await fastify.db.insert(alarmEvents).values({
         deviceId,
@@ -55,6 +54,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         .update(devices)
         .set({
           // lastAlarmState: alarmState,
+          alarmEnabled: enabled,
           lastSeenAt: now,
           isOnline: true,
         })
@@ -76,7 +76,6 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       return reply.send({
         ok: true,
-        // alarmState,
       });
     },
   );

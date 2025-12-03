@@ -28,6 +28,7 @@ export const devices = pgTable("devices", {
   lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
   lastBattery: numeric("last_battery", { precision: 5, scale: 2 }).$type<number>(),
   lastDoorState: text("last_door_state"),
+  alarmEnabled: boolean("alarm_enabled").notNull().default(false),
   lastAlarmState: text("last_alarm_state"),
   isOnline: boolean("is_online"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

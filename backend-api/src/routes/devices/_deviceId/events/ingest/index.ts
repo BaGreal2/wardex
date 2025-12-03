@@ -2,7 +2,7 @@ import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import { Type, type Static } from "@sinclair/typebox";
 import { eq } from "drizzle-orm";
 
-import { devices, doorEvents } from "@/db/schema";
+import { alarmEvents, devices, doorEvents } from "@/db/schema";
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const Params = Type.Object({
@@ -53,11 +53,23 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       await fastify.db.insert(doorEvents).values(newEvent);
 
+      const alarmTriggered = alarmEnabled && door === "open";
+
+      if (alarmTriggered) {
+        await fastify.db.insert(alarmEvents).values({
+          deviceId,
+          eventType: "alarm_triggered",
+          ts: tsDate,
+          triggeredByUserId: null,
+        });
+      }
+
       await fastify.db
         .update(devices)
         .set({
+          alarmEnabled,
           lastDoorState: door,
-          lastAlarmState: alarmEnabled != null ? (alarmEnabled ? "alarm" : "idle") : null,
+          lastAlarmState: alarmTriggered ? "alarm" : "idle",
           lastBattery: battery,
           lastSeenAt: tsDate,
           isOnline: true,
