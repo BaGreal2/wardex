@@ -41,7 +41,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       const now = new Date();
       const enabled = action === "on";
-      const eventType = action === "on" ? "alarm_armed" : "alarm_disarmed";
+      const eventType = enabled ? "alarm_armed" : "alarm_disarmed";
 
       await fastify.db.insert(alarmEvents).values({
         deviceId,
@@ -53,8 +53,8 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       await fastify.db
         .update(devices)
         .set({
-          // lastAlarmState: alarmState,
           alarmEnabled: enabled,
+          lastAlarmState: "idle",
           lastSeenAt: now,
           isOnline: true,
         })
@@ -62,7 +62,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       if (deviceId) {
         try {
-          await sendAlarmCommandToDevice(deviceId, action === "on");
+          await sendAlarmCommandToDevice(deviceId, enabled);
           request.log.info({ deviceId, action }, "C2D alarm command sent");
         } catch (err) {
           request.log.error({ err, deviceId }, "Failed to send C2D alarm command");
@@ -74,9 +74,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         );
       }
 
-      return reply.send({
-        ok: true,
-      });
+      return reply.send({ ok: true });
     },
   );
 };
